@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "source": "USDA WASDE / ICCO",
+    "updated": "2026-06-01",
+    "note": "Update monthly. Stocks-to-use = world ending stocks ÷ world total consumption. Pull from USDA WASDE (grains/oilseeds/sugar/palmoil) or ICCO Quarterly Bulletin (cocoa). All values approximate unless marked 'rep'.",
+    "wasdePDF": "https://www.usda.gov/oce/commodity/wasde/",
+    "iccoBulletin": "https://www.icco.org/statistics/"
+  },
+  "wheat":   { "stu": 0.337, "src": "USDA WASDE est.", "marketYear": "2025/26", "qual": "est" },
+  "corn":    { "stu": 0.242, "src": "USDA WASDE est.", "marketYear": "2025/26", "qual": "est" },
+  "soybean": { "stu": 0.301, "src": "USDA WASDE est.", "marketYear": "2025/26", "qual": "est" },
+  "rice":    { "stu": 0.294, "src": "USDA WASDE est.", "marketYear": "2024/25", "qual": "est" },
+  "palmoil": { "stu": 0.122, "src": "USDA WASDE est.", "marketYear": "2024/25", "qual": "est" },
+  "sugar":   { "stu": 0.358, "src": "USDA WASDE est.", "marketYear": "2025/26", "qual": "est" },
+  "cocoa":   { "stu": 0.274, "src": "ICCO est.",       "marketYear": "2025/26", "qual": "est" },
+  "coffee":  { "stu": null,  "src": "pending",          "marketYear": null,      "qual": "est" },
+  "bananas": { "stu": null,  "src": "n/a (perishable)", "marketYear": null,      "qual": "na"  }
+}

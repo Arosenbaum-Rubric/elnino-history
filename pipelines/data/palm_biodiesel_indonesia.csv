@@ -1,0 +1,23 @@
+year,mandate_level,biodiesel_volume_kl,cpo_equivalent_mt,industrial_consumption_mmt,provenance
+2005,B5,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2006,B5,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2007,B5,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2008,B5,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2009,B5,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2010,B5,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2011,B10,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2012,B10,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2013,B10,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2014,B15,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2015,B15,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2016,B25,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2017,B25,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2018,B25,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2019,B25,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2020,B30,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2021,B30,9300000,7.979,,SOURCE: USDA GAIN / APROBI confirmed — https://apps.fas.usda.gov/newgainapi/api/Report/FindReports?commodityCode=4243000&countryCode=ID
+2022,B35,10450000,8.966,,SOURCE: USDA GAIN / APROBI confirmed — https://apps.fas.usda.gov/newgainapi/api/Report/FindReports?commodityCode=4243000&countryCode=ID
+2023,B35,12200000,10.468,,SOURCE: USDA GAIN / APROBI confirmed — https://apps.fas.usda.gov/newgainapi/api/Report/FindReports?commodityCode=4243000&countryCode=ID
+2024,B40,13600000,11.669,,SOURCE: USDA GAIN / APROBI confirmed — https://apps.fas.usda.gov/newgainapi/api/Report/FindReports?commodityCode=4243000&countryCode=ID
+2025,B40,14200000,12.184,14.9,SOURCE: USDA GAIN / APROBI confirmed — https://apps.fas.usda.gov/newgainapi/api/Report/FindReports?commodityCode=4243000&countryCode=ID
+2026,B40,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)

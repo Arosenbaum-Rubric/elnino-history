@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ELNINO Tracker — Commodity Supply Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root {
+    --bg:#0b0f14; --surface:#131a22; --surface2:#1b232d; --border:#28323e;
+    --text:#e8eef4; --muted:#8b9bab; --faint:#5c6b7a;
+    --accent:#f97316; --accent2:#38bdf8; --green:#22c55e; --red:#ef4444;
+    --yellow:#eab308; --purple:#a855f7; --blue:#3b82f6;
+    --radius:12px; --shadow:0 8px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:radial-gradient(1200px 600px at 80% -10%, #11202e 0%, var(--bg) 55%); color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif; min-height:100vh; line-height:1.5; }
+  ::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:#2a3642;border-radius:6px}
+  a{color:var(--accent2);text-decoration:none}
+
+  /* HEADER */
+  .header{ position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
+    background:linear-gradient(180deg, rgba(11,15,20,.92), rgba(11,15,20,.78)); border-bottom:1px solid var(--border); }
+  .header-inner{ max-width:1500px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .logo{ display:flex; align-items:center; gap:12px; }
+  .logo-badge{ width:42px; height:42px; border-radius:12px; display:grid; place-items:center; font-size:22px;
+    background:linear-gradient(135deg,#0c4a6e,#7c2d12); border:1px solid var(--border); }
+  .logo h1{ font-size:17px; font-weight:800; letter-spacing:.2px; }
+  .logo p{ font-size:11.5px; color:var(--muted); margin-top:1px; }
+  .header-right{ margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .oni-pill{ display:flex; align-items:center; gap:8px; padding:7px 14px; border-radius:24px; font-size:12px; font-weight:700;
+    background:rgba(249,115,22,.12); border:1px solid rgba(249,115,22,.45); color:var(--accent); }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 1.6s infinite; }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.35)}}
+  .btn{ border:none; cursor:pointer; font-weight:600; border-radius:8px; transition:all .15s; font-size:12.5px; padding:8px 14px; }
+  .btn-ghost{ background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover{ border-color:var(--accent2); }
+  .btn-ai{ background:linear-gradient(135deg,#f97316,#a855f7); color:#fff; }
+  .btn-ai:hover{ filter:brightness(1.08); } .btn-ai:disabled{ opacity:.5; cursor:not-allowed; }
+
+  /* AI CONFIG DRAWER */
+  .ai-config{ max-width:1500px; margin:0 auto; padding:0 24px; overflow:hidden; max-height:0; transition:max-height .3s ease; }
+  .ai-config.open{ max-height:340px; }
+  .ai-config-inner{ margin:12px 0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+  .ai-config-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .field label{ display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:6px; font-weight:700; }
+  .field input, .field select{ width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    padding:9px 11px; border-radius:8px; font-size:12.5px; }
+  .field input:focus,.field select:focus{ outline:none; border-color:var(--accent2); }
+  .seg{ display:flex; gap:6px; }
+  .seg button{ flex:1; padding:9px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); cursor:pointer; font-weight:700; font-size:12px; }
+  .seg button.on{ background:rgba(56,189,248,.12); border-color:var(--accent2); color:var(--accent2); }
+  .ai-note{ font-size:11px; color:var(--faint); margin-top:10px; }
+  .ai-status{ font-size:11.5px; font-weight:600; }
+
+  /* LAYOUT */
+  .layout{ max-width:1500px; margin:0 auto; padding:18px 24px 40px; display:grid; grid-template-columns:240px 1fr; gap:22px; }
+  @media(max-width:980px){ .layout{ grid-template-columns:1fr; } .sidebar{ order:2; } }
+
+  /* SIDEBAR */
+  .sidebar{ display:flex; flex-direction:column; gap:6px; position:sticky; top:84px; align-self:start; max-height:calc(100vh - 100px); overflow-y:auto; padding-right:4px; }
+  .side-label{ font-size:10.5px; font-weight:800; color:var(--faint); text-transform:uppercase; letter-spacing:1.2px; padding:4px 8px; }
+  .cbtn{ display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:10px; cursor:pointer; border:1px solid transparent; background:transparent; color:var(--text); text-align:left; width:100%; transition:all .15s; }
+  .cbtn:hover{ background:var(--surface2); }
+  .cbtn.active{ background:rgba(249,115,22,.1); border-color:rgba(249,115,22,.5); }
+  .cbtn.locked{ opacity:.50; }
+  .cbtn.locked .nm::after{ content:' 🔒'; font-size:10px; opacity:.8; }
+  .ov-card.locked-card{ opacity:.45; pointer-events:none; position:relative; }
+  .ov-card.locked-card .ov-foot::after{ content:'🔒 data pending verification'; display:block; font-size:10px; color:#818cf8; font-weight:700; margin-top:6px; }
+  .locked-banner{ background:rgba(99,102,241,.07); border:1px solid rgba(99,102,241,.3); border-radius:9px; padding:14px 18px; margin-bottom:16px; color:#a5b4fc; font-size:13px; line-height:1.65; }
+  .cbtn .ic{ font-size:19px; width:24px; text-align:center; }
+  .cbtn .nm{ flex:1; font-size:13px; font-weight:600; }
+  .pip{ width:9px; height:9px; border-radius:50%; flex:none; }
+
+  .side-card{ margin-top:14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px; }
+  .side-card h4{ font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+  .yr{ display:flex; justify-content:space-between; align-items:center; font-size:11.5px; padding:3px 0; }
+  .yr span:first-child{ color:var(--muted); }
+  .tag{ padding:1px 7px; border-radius:4px; font-weight:800; font-size:9.5px; letter-spacing:.3px; }
+  .t-super{ background:rgba(239,68,68,.18); color:#fca5a5; } .t-strong{ background:rgba(249,115,22,.18); color:#fdba74; }
+  .t-mod{ background:rgba(234,179,8,.18); color:#fde047; } .t-weak{ background:rgba(139,148,158,.15); color:#cbd5e1; }
+  .t-now{ background:rgba(56,189,248,.2); color:#7dd3fc; }
+
+  /* CONTENT */
+  .content{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+  .panel-hero{ background:linear-gradient(135deg, rgba(124,45,18,.35), rgba(12,74,110,.28)); border:1px solid rgba(249,115,22,.25); }
+  .hero-top{ display:flex; align-items:flex-start; gap:14px; }
+  .hero-top .em{ font-size:34px; } .hero-top h2{ font-size:21px; font-weight:800; }
+  .hero-top p{ font-size:13px; color:#c4d0dc; margin-top:4px; max-width:880px; }
+
+  /* ENSO LADDER */
+  .ladder{ margin-top:18px; }
+  .ladder-track{ position:relative; height:46px; border-radius:10px; overflow:hidden; display:flex; border:1px solid var(--border); }
+  .ladder-seg{ display:grid; place-items:center; font-size:10.5px; font-weight:700; color:#0b0f14; text-align:center; padding:0 4px; }
+  .ladder-marks{ position:relative; height:42px; margin-top:6px; }
+  .mark{ position:absolute; transform:translateX(-50%); text-align:center; }
+  .mark .ln{ width:2px; height:14px; background:var(--text); margin:0 auto; }
+  .mark .lb{ font-size:9.5px; color:var(--muted); white-space:nowrap; margin-top:2px; }
+  .mark.now .ln{ background:var(--accent2); width:3px; height:20px; } .mark.now .lb{ color:var(--accent2); font-weight:800; }
+
+  /* STATS */
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:16px; }
+  .stat{ background:rgba(0,0,0,.28); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .stat .lab{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+  .stat .val{ font-size:21px; font-weight:800; margin-top:3px; }
+  .stat .sub{ font-size:10.5px; color:var(--faint); margin-top:2px; }
+
+  /* RANKING */
+  .rank-row{ display:grid; grid-template-columns:150px 1fr 70px; align-items:center; gap:12px; padding:7px 0; cursor:pointer; border-radius:8px; }
+  .rank-row:hover{ background:var(--surface2); }
+  .rank-name{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
+  .rank-bar{ height:14px; border-radius:7px; background:var(--surface2); overflow:hidden; position:relative; }
+  .rank-fill{ height:100%; border-radius:7px; }
+  .rank-dir{ font-size:11px; font-weight:700; text-align:right; }
+
+  /* OVERVIEW CARDS */
+  .ov-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(225px,1fr)); gap:14px; }
+  .ov-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:15px; cursor:pointer; transition:all .18s; }
+  .ov-card:hover{ transform:translateY(-3px); border-color:var(--accent); box-shadow:var(--shadow); }
+  .ov-head{ display:flex; align-items:center; justify-content:space-between; }
+  .ov-em{ font-size:26px; } .ov-name{ font-size:14.5px; font-weight:700; margin-top:8px; }
+  .ov-reg{ font-size:10.5px; color:var(--muted); margin-top:2px; min-height:26px; }
+  .chip{ display:inline-block; padding:2px 8px; border-radius:5px; font-size:9.5px; font-weight:800; letter-spacing:.3px; }
+  .ov-driver{ font-size:11px; color:#c4d0dc; margin-top:9px; min-height:30px; }
+  .ov-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:9px; border-top:1px solid var(--border); }
+  .ov-foot .d{ font-size:11px; font-weight:700; }
+
+  /* DETAIL */
+  .d-head{ display:flex; align-items:flex-start; gap:16px; }
+  .d-em{ font-size:42px; line-height:1; }
+  .d-name{ font-size:24px; font-weight:800; }
+  .d-reg{ font-size:12.5px; color:var(--muted); margin-top:3px; }
+  .badges{ display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
+  .badge{ padding:3px 11px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid; }
+  .b-neg{ background:rgba(239,68,68,.12); color:#fca5a5; border-color:rgba(239,68,68,.4); }
+  .b-pos{ background:rgba(34,197,94,.12); color:#86efac; border-color:rgba(34,197,94,.4); }
+  .b-mix{ background:rgba(234,179,8,.12); color:#fde047; border-color:rgba(234,179,8,.4); }
+  .b-info{ background:rgba(56,189,248,.12); color:#7dd3fc; border-color:rgba(56,189,248,.4); }
+  .b-conv{ background:rgba(168,85,247,.12); color:#d8b4fe; border-color:rgba(168,85,247,.4); }
+
+  .section-t{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.1px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:7px; }
+  .mech{ font-size:13.5px; line-height:1.7; color:#cdd8e3; }
+  .wx-tags{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .wx{ display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; border:1px solid; }
+  .wx-drought{ background:rgba(249,115,22,.1); border-color:rgba(249,115,22,.4); color:#fdba74; }
+  .wx-rain{ background:rgba(59,130,246,.1); border-color:rgba(59,130,246,.4); color:#93c5fd; }
+  .wx-heat{ background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.4); color:#fca5a5; }
+  .wx-disease{ background:rgba(168,85,247,.1); border-color:rgba(168,85,247,.4); color:#d8b4fe; }
+  .wx-good{ background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.4); color:#86efac; }
+
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-2-1{ display:grid; grid-template-columns:1.3fr 1fr; gap:16px; }
+  @media(max-width:780px){ .grid-2,.grid-2-1{ grid-template-columns:1fr; } }
+
+  .why-list{ list-style:none; display:flex; flex-direction:column; gap:9px; }
+  .why-list li{ font-size:13px; color:#cdd8e3; padding-left:22px; position:relative; }
+  .why-list li:before{ content:'▹'; position:absolute; left:0; color:var(--accent); font-weight:800; }
+
+  .chart-wrap{ position:relative; height:230px; margin-top:6px; }
+  .chart-cap{ font-size:11px; color:var(--faint); margin-top:8px; }
+  .est-star{ color:var(--yellow); font-weight:800; cursor:help; }
+  .src-badge{ display:inline-flex; align-items:center; gap:4px; font-size:9.5px; font-weight:700;
+    padding:2px 7px; border-radius:4px; background:rgba(56,189,248,.1); color:var(--accent2);
+    border:1px solid rgba(56,189,248,.25); letter-spacing:.3px; vertical-align:middle; }
+  .src-badge.live{ background:rgba(34,197,94,.1); color:#86efac; border-color:rgba(34,197,94,.3); }
+  .src-badge.est { background:rgba(234,179,8,.1);  color:#fde047; border-color:rgba(234,179,8,.3); }
+  .src-badge.rep { background:rgba(34,197,94,.1);  color:#86efac; border-color:rgba(34,197,94,.3); }
+  .traj-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }
+  .traj-table th{ padding:7px 10px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); border-bottom:1px solid var(--border); font-weight:800; }
+  .traj-table .thr{ text-align:right; }
+  .traj-table td{ padding:7px 10px; border-bottom:1px solid rgba(40,50,62,.35); vertical-align:top; }
+  .traj-yr{ font-weight:700; color:var(--text); white-space:nowrap; width:76px; }
+  .traj-pct{ text-align:right; white-space:nowrap; width:64px; }
+  .traj-abs{ color:#cdd8e3; font-size:12px; white-space:nowrap; }
+  .traj-src{ font-size:11px; }
+  .traj-note{ color:var(--muted); font-size:11px; display:block; margin-top:3px; line-height:1.45; }
+  details.traj-details>summary{ list-style:none; cursor:pointer; user-select:none; }
+  details.traj-details>summary::-webkit-details-marker{ display:none; }
+  details.traj-details>summary::after{ content:' ▶'; font-size:10px; color:var(--muted); font-weight:400; }
+  details.traj-details[open]>summary::after{ content:' ▼'; }
+  .cmp-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }
+  .cmp-table th{ padding:6px 10px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint); border-bottom:1px solid rgba(40,50,62,.55); }
+  .cmp-table .cmp-thr{ text-align:right; }
+  .cmp-table td{ padding:8px 10px; border-bottom:1px solid rgba(40,50,62,.35); vertical-align:top; }
+  .cmp-ev{ font-weight:700; color:var(--text); }
+  .cmp-type-lbl{ font-size:10.5px; color:var(--faint); display:block; margin-top:2px; }
+  .cmp-onset{ font-size:12px; color:var(--muted); white-space:nowrap; }
+  .cmp-pair{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .cmp-half{ display:flex; flex-direction:column; gap:3px; min-width:100px; }
+  .cmp-yr{ font-size:10.5px; color:var(--faint); }
+  .cmp-lvl{ font-size:13.5px; font-weight:700; color:var(--text); }
+  .cmp-arr{ color:var(--faint); font-size:20px; flex-shrink:0; line-height:1; padding-top:10px; }
+  .cmp-delta{ font-weight:700; font-size:13px; text-align:right; white-space:nowrap; }
+  .cmp-delta.pos{ color:#86efac; }
+  .cmp-delta.neg{ color:#fca5a5; }
+  .cmp-delta.flat{ color:#cdd8e3; }
+  .cmp-cnote{ font-size:10.5px; color:var(--muted); display:block; margin-top:5px; font-style:italic; line-height:1.45; }
+  .live-pill{ display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:20px;
+    font-size:11.5px; font-weight:700; background:var(--surface2); border:1px solid var(--border); cursor:pointer; }
+  .live-pill:hover{ border-color:var(--accent2); }
+  .stu-bar-wrap{ margin-top:8px; }
+  .stu-bar-track{ height:8px; background:var(--surface2); border-radius:4px; overflow:hidden; margin-top:4px; }
+  .stu-bar-fill{ height:100%; border-radius:4px; transition:width .4s; }
+
+  .otabs{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+  .otab{ padding:6px 14px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); cursor:pointer; font-size:11.5px; font-weight:700; transition:all .15s; }
+  .otab:hover{ border-color:var(--accent2); color:var(--text); }
+  .otab.active{ background:rgba(56,189,248,.12); border-color:var(--accent2); color:var(--accent2); }
+  .heat-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:4px; }
+  .heat-table th{ padding:8px 12px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); border-bottom:1px solid var(--border); font-weight:800; white-space:nowrap; }
+  .heat-table th.r{ text-align:center; }
+  .heat-table td{ padding:8px 12px; border-bottom:1px solid rgba(40,50,62,.5); }
+  .heat-table tr:hover td{ background:rgba(255,255,255,.02); cursor:pointer; }
+  .hc{ font-weight:800; border-radius:5px; padding:3px 9px; display:inline-block; font-size:11.5px; text-align:center; min-width:52px; }
+  .hc-neg{ background:rgba(239,68,68,.12); color:#fca5a5; }
+  .hc-pos{ background:rgba(34,197,94,.12); color:#86efac; }
+  .hc-flat{ background:rgba(234,179,8,.1); color:#fde047; }
+
+  .tile-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .tile{ background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .tile .l{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; }
+  .tile .v{ font-size:17px; font-weight:800; margin-top:3px; }
+  .tile .n{ font-size:10.5px; color:var(--faint); margin-top:3px; line-height:1.4; }
+  .up{ color:var(--green); } .down{ color:var(--red); } .flat{ color:var(--yellow); }
+
+  /* VERDICT GAUGE */
+  .verdict{ display:flex; align-items:center; gap:14px; }
+  .verdict-badge{ font-size:13px; font-weight:800; padding:7px 16px; border-radius:10px; }
+  .v-trough{ background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.4); }
+  .v-bumper{ background:rgba(34,197,94,.15); color:#86efac; border:1px solid rgba(34,197,94,.4); }
+  .v-mixed{ background:rgba(234,179,8,.15); color:#fde047; border:1px solid rgba(234,179,8,.4); }
+
+  .predict{ background:linear-gradient(135deg, rgba(249,115,22,.09), rgba(168,85,247,.09)); border:1px solid rgba(249,115,22,.32); border-radius:var(--radius); padding:18px 20px; }
+  .predict .pl{ font-size:11px; font-weight:800; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:9px; display:flex; gap:8px; align-items:center; }
+  .predict .pc{ font-size:13.5px; line-height:1.7; color:#cdd8e3; } .predict .pc strong{ color:#fff; }
+
+  /* LIVE WEATHER */
+  .wx-live{ display:flex; gap:14px; align-items:stretch; flex-wrap:wrap; }
+  .wx-metric{ flex:1; min-width:120px; background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:10px; padding:12px 14px; text-align:center; }
+  .wx-metric .m-ic{ font-size:20px; } .wx-metric .m-v{ font-size:20px; font-weight:800; margin-top:4px; }
+  .wx-metric .m-l{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-top:2px; }
+  .wx-read{ font-size:12px; padding:9px 13px; border-radius:9px; margin-top:12px; font-weight:600; }
+  .cal-row{ display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .cal-row:last-child{ border-bottom:none; }
+  .cal-chip{ min-width:88px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; text-align:center; white-space:nowrap; }
+  .cs-alert{ background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.4); }
+  .cs-watch{ background:rgba(251,191,36,.12); color:#fde68a; border:1px solid rgba(251,191,36,.35); }
+  .cs-ok{ background:rgba(34,197,94,.1); color:#86efac; border:1px solid rgba(34,197,94,.35); }
+  .cs-ahead{ background:rgba(100,116,139,.1); color:var(--muted); border:1px solid var(--border); }
+  .cal-detail{ flex:1; font-size:12.5px; color:#cdd8e3; line-height:1.5; }
+  .cal-months{ font-size:11px; color:var(--muted); margin-top:2px; }
+  .ev-hover-box{ width:130px; flex-shrink:0; background:rgba(0,0,0,.3); border:1px solid var(--border); border-radius:10px; padding:14px 12px; display:flex; flex-direction:column; gap:5px; }
+  .ehb-label{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-top:4px; }
+  .ehb-label:first-child{ margin-top:0; }
+  .ehb-yr{ font-size:22px; font-weight:800; color:var(--text); }
+  .ehb-pct{ font-size:17px; font-weight:700; }
+  .ehb-sev{ font-size:11px; font-weight:600; padding:3px 8px; border-radius:5px; align-self:flex-start; margin-top:2px; }
+  .sev-mild{ background:rgba(251,191,36,.12); color:#fde68a; border:1px solid rgba(251,191,36,.3); }
+  .sev-elnino{ background:rgba(249,115,22,.12); color:#fdba74; border:1px solid rgba(249,115,22,.3); }
+  .sev-super{ background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.3); }
+
+  /* AI PANEL */
+  .ai-panel{ border:1px solid rgba(168,85,247,.3); }
+  .ai-h{ display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .ai-orb{ width:38px; height:38px; border-radius:11px; display:grid; place-items:center; font-size:18px; background:linear-gradient(135deg,#f97316,#a855f7); }
+  .ai-h .t{ font-size:15px; font-weight:800; } .ai-h .s{ font-size:11px; color:var(--muted); }
+  .ai-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .ask-row{ display:flex; gap:8px; margin-top:12px; }
+  .ask-row input{ flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:10px 13px; border-radius:9px; font-size:13px; }
+  .ask-row input:focus{ outline:none; border-color:var(--purple); }
+  .ai-out{ margin-top:14px; font-size:13.5px; line-height:1.75; color:#cdd8e3; }
+  .ai-out h2,.ai-out h3{ color:var(--accent); font-size:14px; margin:14px 0 6px; }
+  .ai-out h2:first-child,.ai-out h3:first-child{ margin-top:0; }
+  .ai-out ul,.ai-out ol{ padding-left:22px; margin:6px 0 10px; } .ai-out li{ margin-bottom:4px; }
+  .ai-out strong{ color:#fff; } .ai-out p{ margin-bottom:9px; }
+  .ai-out table{ width:100%; border-collapse:collapse; margin:10px 0; font-size:12.5px; }
+  .ai-out th,.ai-out td{ border:1px solid var(--border); padding:6px 9px; text-align:left; }
+  .ai-out th{ background:var(--surface2); }
+  .spinner{ width:16px; height:16px; border:2px solid var(--border); border-top-color:var(--purple); border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .alert{ padding:11px 14px; border-radius:9px; font-size:12.5px; }
+  .alert-warn{ background:rgba(234,179,8,.1); border:1px solid rgba(234,179,8,.35); color:#fde047; }
+
+  /* FACT-CHECKER */
+  .fc-bar{ display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:9px; margin-top:12px; font-size:12px; font-weight:700; flex-wrap:wrap; }
+  .fc-ok  { background:rgba(34,197,94,.08);  border:1px solid rgba(34,197,94,.3);  color:#86efac; }
+  .fc-warn{ background:rgba(234,179,8,.08);  border:1px solid rgba(234,179,8,.3);  color:#fde047; }
+  .fc-checking{ background:rgba(168,85,247,.07); border:1px solid rgba(168,85,247,.2); color:var(--muted); }
+  .fc-skip{ background:var(--surface2); border:1px solid var(--border); color:var(--faint); font-weight:400; }
+  .fc-label{ flex:1; }
+  .fc-toggle{ background:none; border:1px solid currentColor; border-radius:5px; cursor:pointer; font-size:10.5px; color:inherit; opacity:.75; padding:2px 8px; font-weight:700; }
+  .fc-toggle:hover{ opacity:1; }
+  .fc-detail{ width:100%; margin-top:8px; font-size:12px; line-height:1.65; color:#cdd8e3; font-weight:400; padding-top:10px; border-top:1px solid rgba(255,255,255,.06); }
+  .fc-detail p{ margin-bottom:6px; }
+  .fc-detail ul{ padding-left:18px; } .fc-detail li{ margin-bottom:4px; }
+
+  /* CONFOUNDERS TABLE */
+  .conf-table{ width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+  .conf-table th{ padding:8px 10px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); border-bottom:1px solid var(--border); font-weight:800; }
+  .conf-table td{ padding:8px 10px; border-bottom:1px solid rgba(40,50,62,.4); vertical-align:top; }
+  .conf-table tr:last-child td{ border-bottom:none; }
+  .conf-table .ev-yr{ font-weight:700; color:var(--text); white-space:nowrap; }
+  .conf-table .ev-type{ color:var(--muted); font-size:10.5px; white-space:nowrap; }
+  .conf-table .ev-dev{ font-weight:800; font-size:11.5px; border-radius:4px; padding:2px 7px; display:inline-block; }
+  .conf-table .cf-text{ color:#cdd8e3; line-height:1.55; }
+  .conf-table .cf-none{ color:var(--faint); font-style:italic; }
+
+  .footer{ max-width:1500px; margin:0 auto; padding:20px 24px 40px; color:var(--faint); font-size:11px; line-height:1.7; border-top:1px solid var(--border); margin-top:10px; }
+  .footer b{ color:var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-badge">🌊</div>
+      <div>
+        <h1>ELNINO Tracker</h1>
+        <p>AI agent for production & supply forecasting · Rubric Capital Research</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="oni-pill"><span class="dot"></span> <span id="oniLabel">2026 El Niño — developing, super-event tail risk</span></div>
+      <div class="live-pill" onclick="fetchAllLiveData(true)" title="Click to refresh live production data">
+        📡 <span id="liveDataStatus" style="color:var(--faint)">Loading data…</span>
+      </div>
+      <button class="btn btn-ghost" onclick="toggleConfig()">⚙️ AI Setup</button>
+      <span class="ai-status" id="aiStatus" style="color:var(--faint)">AI: not configured</span>
+    </div>
+  </div>
+  <!-- AI CONFIG -->
+  <div class="ai-config" id="aiConfig">
+    <div class="ai-config-inner">
+      <div class="ai-config-grid">
+        <div class="field">
+          <label>AI Provider</label>
+          <div class="seg" id="provSeg">
+            <button class="on" data-prov="claude" onclick="setProvider('claude')">Claude</button>
+            <button data-prov="gemini" onclick="setProvider('gemini')">Gemini</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <select id="modelSel"></select>
+        </div>
+        <div class="field" id="claudeKeyField">
+          <label>Claude API Key (sk-ant-…)</label>
+          <input type="password" id="claudeKey" placeholder="sk-ant-..." oninput="saveKeys()"/>
+        </div>
+        <div class="field" id="geminiKeyField" style="display:none">
+          <label>Gemini API Key (AIza…)</label>
+          <input type="password" id="geminiKey" placeholder="AIza..." oninput="saveKeys()"/>
+        </div>
+      </div>
+      <div class="ai-note">
+        🔒 Keys are kept only in this browser tab (sessionStorage) and sent directly to the provider — never to any server.
+        Claude uses the browser-direct header; Gemini uses the public generateLanguage endpoint.
+        Get a key: <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a> ·
+        <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-label">Commodities</div>
+    <!-- commodity buttons injected -->
+    <div class="side-card">
+      <h4>ENSO Record (peak ONI)</h4>
+      <div class="yr"><span>1997–98</span><span class="tag t-super">SUPER +2.4°</span></div>
+      <div class="yr"><span>2009–10</span><span class="tag t-mod">MOD</span></div>
+      <div class="yr"><span>2015–16</span><span class="tag t-super">SUPER +2.8°</span></div>
+      <div class="yr"><span>2018–19</span><span class="tag t-weak">WEAK</span></div>
+      <div class="yr"><span>2023–24</span><span class="tag t-strong">STRONG +2.1°</span></div>
+      <div class="yr"><span style="color:var(--accent2);font-weight:700">2026 ↗</span><span class="tag t-now">DEVELOPING</span></div>
+    </div>
+    <div class="side-card">
+      <h4>Weather Drivers</h4>
+      <div style="display:flex;flex-direction:column;gap:7px;font-size:11.5px">
+        <span><span class="wx wx-drought" style="padding:1px 7px">☀️</span> &nbsp;Drought / dryness</span>
+        <span><span class="wx wx-rain" style="padding:1px 7px">🌧️</span> &nbsp;Excess rain / flood</span>
+        <span><span class="wx wx-heat" style="padding:1px 7px">🔥</span> &nbsp;Heat stress / warm ocean</span>
+        <span><span class="wx wx-disease" style="padding:1px 7px">🦠</span> &nbsp;Disease pressure</span>
+        <span><span class="wx wx-good" style="padding:1px 7px">🌱</span> &nbsp;Beneficial conditions</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="content" id="content"></main>
+</div>
+
+<footer class="footer">
+  <b>Free production data APIs (no key required):</b>
+  NOAA CPC ONI ascii (<a href="https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt" target="_blank">cpc.ncep.noaa.gov</a>) ·
+  World Bank Open Data (<a href="https://data.worldbank.org/indicator/AG.PRD.CREL.MT" target="_blank">data.worldbank.org</a>) ·
+  USDA FAS PSD Online (<a href="https://apps.fas.usda.gov/psdonline/app/index.html" target="_blank">apps.fas.usda.gov</a>, endpoint intermittently unstable) ·
+  FAO FAOSTAT API v1 (<a href="https://www.fao.org/faostat/en/" target="_blank">fao.org/faostat</a>, Cloudflare blocks direct browser access) ·
+  Open-Meteo live weather (<a href="https://open-meteo.com/" target="_blank">open-meteo.com</a>, no key) ·
+  IRI Columbia ENSO forecasts (<a href="https://iri.columbia.edu/climate/ENSO/" target="_blank">iri.columbia.edu</a>) ·
+  NASA GEOGLAM Crop Monitor (<a href="https://cropmonitor.org/" target="_blank">cropmonitor.org</a>) ·
+  NASA POWER meteorology (<a href="https://power.larc.nasa.gov/api/temporal/daily/point" target="_blank">power.larc.nasa.gov</a>, no key) ·
+  CHIRPS rainfall anomaly (<a href="https://www.chc.ucsb.edu/data/chirps" target="_blank">chc.ucsb.edu/data/chirps</a>).
+
+  <b>Primary production sources:</b>
+  ICCO Quarterly Bulletin (cocoa) ·
+  USDA WASDE monthly report (all major crops, free PDF) ·
+  FAO Food Outlook biannual ·
+  ISO Sugar market report ·
+  ICO Coffee Report ·
+  India IMD monsoon seasonal outlook ·
+  nature.com ENSO crop-yield meta-analysis (Iizumi et al.) ·
+  WFP El Niño situation reports.
+
+  <b>Methodology:</b> Stocks-to-use, mean impact, σ, decline/gain rate, and conviction score are all computed in-browser from raw inputs — no hand-typed statistics. AI receives pre-computed numbers and is explicitly barred from arithmetic or price references. Event-year deviations marked * are directional estimates pending hard-data extraction from the primary sources above. El Niño is rarely the sole cause of production changes; see the per-year "contributing factors" table on each commodity page. <b>For research only — not investment advice.</b>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+//  DATA — PRODUCTION-FOCUSED (no historical price levels, per mandate)
+//  This block holds ONLY raw inputs. Every statistic shown in the UI
+//  (mean impact, σ, range, decline-rate, conviction, sensitivity) is
+//  COMPUTED in JS from these inputs — see computeStats()/computeConviction().
+//  The AI agent is fed those computed numbers and told not to do its own math.
+//
+//  Per-event schema:  events:{ '2014-16':{dev:-4, src:'est'}, ... }
+//    dev  = production / yield deviation vs the prior season, in % (YoY).
+//    src  = 'rep'  → figure stated in a source report (ICCO/USDA/etc.) — shown SOLID, no asterisk.
+//           'est'  → directional estimate pending hard data            — shown FADED, marked with *.
+//    (Optional, when real numbers are available: replace dev with {prod, base, src};
+//     evDev() will then compute the % itself — prod/base-1 — instead of using a typed dev.)
+//
+//  supply:{ stocks, use, src } → stocks-to-use = stocks/use, computed when both are present.
+//    Left null with a TODO until you paste USDA PSD ending-stocks + consumption.
+// ════════════════════════════════════════════════════════════════════
+const EVENTS = ['2002-03','2004-05','2006-07','2009-10','2014-16','2018-19','2023-24']; // El Niño events, last ~20y
+const ENSO_SEV={'2002-03':'El Niño','2004-05':'Mild El Niño','2006-07':'Mild El Niño','2009-10':'El Niño','2014-16':'Super El Niño','2018-19':'Mild El Niño','2023-24':'El Niño'};
+// Onset = first month ONI crossed +0.5°C threshold (NOAA CPC). Peak = highest ONI month.
+const EL_NINO_META = {
+  '2002-03': {onset:'Jun 2002', peak:'Nov 2002', wane:'Mar 2003'},
+  '2004-05': {onset:'Jul 2004', peak:'Nov 2004', wane:'Feb 2005'},
+  '2006-07': {onset:'Sep 2006', peak:'Nov 2006', wane:'Feb 2007'},
+  '2009-10': {onset:'Jul 2009', peak:'Dec 2009', wane:'Apr 2010'},
+  '2014-16': {onset:'Oct 2014', peak:'Nov 2015', wane:'May 2016'},
+  '2018-19': {onset:'Oct 2018', peak:'Dec 2018', wane:'Mar 2019'},
+  '2023-24': {onset:'Jun 2023', peak:'Dec 2023', wane:'Apr 2024'},
+};
+const SUPER_EVENTS = ['2014-16']; // super event within the window (1997-98 pre-dates 20y prod series)
+
+const C = {
+  cocoa: {
+    name:'Cocoa', icon:'🍫', cls:'neg', score:0.95,
+    unit:'production (YoY %)',
+    regions:"Côte d'Ivoire, Ghana, Nigeria, Cameroon — West Africa (~60–75% of supply)",
+    driver:'Excess rain → disease, then Harmattan drought',
+    wx:[ {l:'Excess rain · Jul–Aug',t:'rain'}, {l:'Black-pod & swollen-shoot disease',t:'disease'}, {l:'Harmattan drought · Dec–Feb',t:'drought'} ],
+    mech:"West Africa grows 60–75% of the world's cocoa. El Niño shifts the regional rain band (ITCZ) and hits the crop in two windows: <strong>too much rain in Jul–Aug</strong> during the main-crop harvest spreads swollen-shoot virus and black-pod disease, then the dry, dusty <strong>Harmattan winds in Dec–Feb</strong> drive humidity below 20% and damage the mid-crop. Ageing trees, thin replanting and land constraints amplify every shock.",
+    why:[ "Supply is concentrated: a single weather zone drives the majority of global output.",
+          "Peer-reviewed research (Scientific Reports 2022) finds every strong El Niño in the past 55 years has reduced global cocoa production; ICCO crop-year (Oct–Sep) data shows more consistent negatives than FAO calendar-year — 2006–07 and 2023–24 were the clearest FAO-measured production shocks.",
+          "Trees are perennial — drought and disease stress carries into following seasons." ],
+    events:{
+      '2002-03':{prod:3705144,base:3298178,src:'rep'},  // +12.3% FAO/OWID World 2003 vs 2002 (area expansion dominated)
+      '2004-05':{prod:4043867,base:4069753,src:'rep'},  // -0.6% FAO/OWID World 2005 vs 2004
+      '2006-07':{prod:3898909,base:4299922,src:'rep'},  // -9.3% FAO/OWID World 2007 vs 2006
+      '2009-10':{prod:4328769,base:4211455,src:'rep'},  // +2.8% FAO/OWID World 2010 vs 2009
+      '2014-16':{dev:-6.0,src:'rep'},  // -6.0% ICCO/Wells Fargo Exhibit 9 — crop yr 2015/16 (worst year of event)
+      '2018-19':{prod:5520075,base:5505867,src:'rep'},  // +0.3% FAO/OWID World 2019 vs 2018
+      '2023-24':{dev:-12.9,src:'rep'}  // -12.9% ICCO/Wells Fargo Exhibit 9 — crop yr 2023/24
+    },
+    supply:{ stocks:null, use:null, src:'todo' }, // TODO ICCO: world cocoa stocks-to-grindings ratio
+    superNote:"All 7 events sourced from FAO via OWID World aggregate (1961–2024). Only 2006–07 (−9.3%) and 2023–24 (−8.9% FAO cal-year; ICCO crop-year −11% to −13%) were meaningful declines; 2002–03 was +12.3% as area expansion dominated. ICCO crop-year methodology shows more consistent negatives because it aligns harvest timing to the affected season. The 2023–24 crisis was driven by both weather (black-pod disease from excess December rainfall, February drought cutting pod development) and structural area loss — Ghana's COCOBOD confirmed 500,000+ ha infected by Swollen Shoot Virus. Full structural recovery requires 3–5+ years as new trees mature.",
+    trendIdx:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],vals:[115,112,105,90,88,85,78,76,80,95,108,112],src:'2026 est.'},
+    verdict:'TROUGH',
+    verdictNote:"Coming off the 2023–24 collapse (−11% YoY). 2025 delivered only a partial rebuild; global stocks remain unusually thin.",
+    tiles:{ Production:{v:'−11% YoY',d:'down',n:'2023–24, worst in ICCO record'},
+            'Planted area':{v:'≈ Flat',d:'flat',n:'Ageing trees, little replanting'},
+            Yield:{v:'Down',d:'down',n:'Disease + Harmattan damage'},
+            'Stocks':{v:'Very tight',d:'down',n:'Buffer depleted by 2023–24'} },
+    predict:"A strong/super 2026 event raises the odds of <strong>both</strong> damaging windows — Jul–Aug over-rain and a harsh Dec–Feb Harmattan. With stocks still depleted from 2023–24, there is little cushion: a disappointing 2026 main crop would bite hardest through <strong>2027</strong>, when the supply impact typically lands. Cocoa remains the single most El Niño-sensitive soft.",
+    dir:'Production at risk ↓', dirColor:'var(--red)',
+    geo:{lat:6.83,lon:-5.29,place:'Yamoussoukro cocoa belt, Côte d’Ivoire'}
+  },
+  palmoil:{
+    name:'Palm Oil', icon:'🌴', cls:'neg', score:0.85,
+    unit:'production YoY %',
+    regions:'Indonesia, Malaysia (~85% of global supply)',
+    driver:'Heat + drought → fire & lower FFB yield (9–18 mo lag)',
+    wx:[ {l:'Drought · from Jul',t:'drought'}, {l:'Heat stress on palms',t:'heat'}, {l:'Forest fire & haze',t:'heat'} ],
+    mech:"Hot, dry El Niño weather over the Maritime Continent stresses oil palms and lowers <strong>fresh-fruit-bunch (FFB) yields</strong>, while fuelling forest fires and haze that thin the canopy. Palm has the <strong>longest lag of any crop</strong>: dryness starting in July can suppress yields 9–18 months later, into 2027. Indonesia's area expansion has masked most production declines — FAO data shows 2014–16 as the only event with a clear global production drop (−5%); <strong>FFB yield per hectare and oil extraction rate (OER)</strong> are the sharper El Niño signal.",
+    why:[ "Two countries in one climate zone supply ~85% — no geographic diversification.",
+          "Yield response lags 9–18 months, so a 2026 drought damages 2027 supply.",
+          "Indonesia's B50 biodiesel mandate (from July 2026) diverts oil to fuel, tightening exports on top of any weather hit." ],
+    events:{
+      '2002-03':{dev:-3,src:'est'},  // estimate — pre-2005 not in pipeline
+      '2004-05':{dev:-1,src:'est'},  // estimate — pre-2005 not in pipeline
+      '2006-07':{prod:37011,base:36762,src:'rep'},   // +0.7% FAO/OWID 2007 vs 2006 (1000t CPO)
+      '2009-10':{prod:42451,base:40793,src:'rep'},   // +4.1% FAO/OWID 2010 vs 2009
+      '2014-16':{prod:53526,base:56332,src:'rep'},   // -5.0% FAO/OWID 2016 vs 2015
+      '2018-19':{prod:73391,base:66702,src:'rep'},   // +10.0% FAO/OWID 2019 vs 2018
+      '2023-24':{prod:73031,base:72511,src:'rep'}    // +0.7% FAO/OWID 2023 vs 2022
+    },
+    supply:{ stocks:null, use:null, src:'todo' }, // TODO USDA PSD: palm oil ending stocks & consumption
+    superNote:"FAO production data (OWID) shows 2014–16 as the only event with a clear global CPO production decline (−5.0%; USDA FAS shows −5.4%); all other events flat or positive as Indonesia's area expansion dominates volume. The real El Niño signal is FFB yield per hectare: Malaysia fell ~−14% in 2015–16 (CPO output −13.2%, USDA IPAD Aug 2016); Indonesia's yield impact was smaller (~−5%, USDA) but its scale makes even a small % shock material. Indonesia's B50 biodiesel mandate from July 1, 2026 adds structural demand pull on top of any weather-driven yield shortfall.",
+    trendIdx:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],vals:[88,90,97,103,110,115,110,105,112,115,110,100],src:'2026 est.'},
+    verdict:'MIXED',
+    verdictNote:"Long-run expansion kept output rising, but the 2023 El Niño lag plus B50 biodiesel diversion are tightening exportable supply into 2026.",
+    tiles:{ Production:{v:'Rising, lagged',d:'up',n:'Expansion; 2023 drought lag still feeding through'},
+            'Planted area':{v:'+ Expanding',d:'up',n:'Indonesia & Malaysia replanting/new area'},
+            Yield:{v:'Pressured',d:'down',n:'FFB stress post-2023; recovery slow'},
+            'Exportable supply':{v:'Tightening',d:'down',n:'B50 mandate diverts to biodiesel'} },
+    predict:"If El Niño dryness sets in from July 2026, the <strong>yield hit lands largely in 2027</strong> given palm's long lag. Layered on the B50 biodiesel mandate diverting supply to fuel, the balance tightens materially. <strong>High conviction conditional on the event reaching strong/super intensity</strong> (watch ONI ≥ +1.5°C by mid-2026).",
+    dir:'Supply tightening ↓', dirColor:'var(--red)',
+    geo:{lat:0.51,lon:101.45,place:'Pekanbaru, Sumatra (palm belt), Indonesia'}
+  },
+  sugar:{
+    name:'Sugar', icon:'🍬', cls:'mix', score:0.6,
+    unit:'cane / refined output',
+    regions:'India, Thailand, wider SE Asia (negative) · Brazil Center-South (steadier)',
+    driver:'Drought weakens India & Thailand monsoon',
+    wx:[ {l:'Monsoon drought · India/Thailand',t:'drought'}, {l:'Heat → weaker sucrose (Brazil)',t:'heat'}, {l:'Brazil C-S harvest favorable',t:'good'} ],
+    mech:"El Niño plus a positive Indian Ocean Dipole <strong>weakens the South Asian monsoon</strong>, cutting cane in India (monsoon = 75% of annual rainfall) and Thailand. Brazil's Center-South is more neutral — El Niño often brings higher rain and heat that <strong>lowers sucrose content (TRS/quality)</strong> even when cane tonnage holds. The wild card is policy: mills divert cane between sugar and ethanol depending on fuel economics.",
+    why:[ "India and Thailand together swing the global balance; both are monsoon-dependent.",
+          "India can restrict exports when its crop disappoints, amplifying the shock.",
+          "Brazilian ethanol/sugar mix can offset or deepen the deficit depending on policy." ],
+    events:{ '2002-03':{dev:-3,src:'est'}, '2004-05':{dev:-1,src:'est'}, '2006-07':{dev:-2,src:'est'}, '2009-10':{dev:-5,src:'est'},
+             '2014-16':{dev:-4,src:'est'}, '2018-19':{dev:-2,src:'est'}, '2023-24':{dev:-5,src:'est'} },
+    supply:{ stocks:null, use:null, src:'todo' }, // TODO USDA PSD: sugar (centrifugal) ending stocks & consumption
+    superNote:"In El Niño years Thailand's refined output fell to ~9.7 MMT in 2015–16 (from ~11.4) and ~8.5–8.8 MMT in 2023–24 (from ~11) — losses of 2–3 MMT each event. India output dipped in tandem.",
+    trendIdx:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],vals:[108,110,112,108,103,95,90,88,92,98,106,110],src:'2026 est.'},
+    verdict:'MIXED',
+    verdictNote:"Asian output dipped through 2023–24 (Thailand −2 to −3 MMT) while Brazil's Center-South ran a large, good-quality crop. Talk of a global deficit into 2027 is building.",
+    tiles:{ 'Asia output':{v:'Down',d:'down',n:'Thailand −2–3 MMT; India lower'},
+            'Brazil C-S':{v:'Large crop',d:'up',n:'Dry weather favored 2025–26 harvest'},
+            'Planted area':{v:'+ Slight',d:'up',n:'Brazil expansion; India recovery hoped'},
+            'Global balance':{v:'→ Deficit risk',d:'flat',n:'Deficit chatter into 2027'} },
+    predict:"India's monsoon (Jun–Sep) and Thailand's rainfall (through Oct) are the swing factors — an early monsoon withdrawal cuts both. Brazil's large Center-South crop offsets some of that, so the market is more <strong>range-bound with upside risk</strong>, hinging on Indian export policy and the sugar-vs-ethanol mix.",
+    dir:'Asia output at risk ↓ / Brazil steadier', dirColor:'var(--yellow)',
+    geo:{lat:16.70,lon:74.24,place:'Kolhapur cane belt, Maharashtra, India'},
+    locked: true
+  },
+  coffee:{
+    name:'Coffee', icon:'☕', cls:'neg', score:0.7,
+    unit:'Robusta / Arabica output',
+    regions:'Vietnam, Indonesia (Robusta) · Brazil · Central America (Arabica)',
+    driver:'Drought cuts Robusta; Central-America Arabica dry',
+    wx:[ {l:'Drought · Vietnam/Indonesia',t:'drought'}, {l:'Dry wet-season · Central America',t:'drought'}, {l:'Arabica can benefit',t:'good'} ],
+    mech:"<strong>Robusta is hit hardest</strong>: lower accumulated rainfall in Vietnam (the largest Robusta producer) and Indonesia cuts output, and Brazil's lowland Robusta sits in the drier El Niño signal. <strong>Arabica is more mixed</strong> — Central America (Honduras, Guatemala, Nicaragua, Costa Rica) sees below-normal wet-season rain (Jun–Oct), while parts of Brazil can even benefit. Flowering in Sep–Nov sets the following-April harvest.",
+    why:[ "Robusta's main belts (Vietnam, Indonesia, Brazil lowlands) sit squarely in the dry signal.",
+          "2026 is an Arabica 'off-year' in Brazil's biennial cycle, so any hit is felt more.",
+          "Central-American Arabica faces a documented dry wet-season under El Niño." ],
+    events:{ '2002-03':{dev:-3,src:'est'}, '2004-05':{dev:-2,src:'est'}, '2006-07':{dev:-2,src:'est'}, '2009-10':{dev:-4,src:'est'},
+             '2014-16':{dev:-5,src:'est'}, '2018-19':{dev:-1,src:'est'}, '2023-24':{dev:-3,src:'est'} },
+    supply:{ stocks:null, use:null, src:'todo' }, // TODO USDA PSD: coffee ending stocks & consumption (Robusta/Arabica split if available)
+    superNote:"In 2015–16 Brazil's Robusta was hit far harder than Arabica due to its drier growing geography. Arabica is often only mildly affected — and can benefit in some regions.",
+    trendIdx:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],vals:[108,112,105,100,97,95,93,90,88,90,93,98],src:'2026 est.'},
+    verdict:'MIXED',
+    verdictNote:"Robusta has run tight; Arabica is in an on-year rebuild now but turns to a 2026 off-year — leaving less cushion just as El Niño risk builds.",
+    tiles:{ Robusta:{v:'Tight',d:'down',n:'Vietnam/Indonesia rainfall-sensitive'},
+            Arabica:{v:'On-yr now',d:'up',n:'Rebuilding stock; 2026 = off-year'},
+            'Planted area':{v:'+ Vietnam',d:'up',n:'Robusta expansion continuing'},
+            'Stocks':{v:'Lean',d:'down',n:'Consumer inventories run thin'} },
+    predict:"Watch the <strong>Sep–Nov flowering</strong> for Robusta and Central-American Arabica wet-season rain. A dry transition would cut the 2027 Robusta harvest, and because 2026 is an Arabica off-year in Brazil, even a modest Arabica hit is amplified. <strong>Robusta skews negative; Arabica is genuinely two-sided.</strong>",
+    dir:'Robusta ↓ / Arabica mixed', dirColor:'var(--accent)',
+    geo:{lat:12.67,lon:108.05,place:'Buôn Ma Thuột (Robusta belt), Vietnam'},
+    locked: true
+  },
+  bananas:{
+    name:'Bananas', icon:'🍌', cls:'neg', score:0.6,
+    unit:'export volume',
+    regions:'Ecuador (largest exporter ~30%), Philippines, Colombia, Costa Rica',
+    driver:'Excess rain & flooding in Ecuador (the El Niño exception)',
+    wx:[ {l:'Excess rain & coastal flood · Ecuador',t:'rain'}, {l:'Black Sigatoka disease',t:'disease'}, {l:'Drought · Philippines',t:'drought'} ],
+    mech:"Bananas are the El Niño <strong>exception — too much water, not drought</strong>. Ecuador, the world's largest exporter (~30% of trade), gets heavy rain and coastal flooding as the warm Pacific pushes storms onto its coast. Flooding disrupts harvest and transport and spreads fungal <strong>Black Sigatoka</strong>, while the Philippines can face the opposite — drought. In 2023–24 heavy rains hit Ecuador's coast (≈130,000 people and 29,000 homes affected Jan–Mar 2024).",
+    why:[ "Ecuador's Pacific coast floods under El Niño — opposite of the usual drought story.",
+          "Near-zero shelf life means no inventory buffer: shocks are sharp but short.",
+          "Fungal disease (Black Sigatoka, TR4) compounds weather damage." ],
+    events:{ '2002-03':{dev:-2,src:'est'}, '2004-05':{dev:-1,src:'est'}, '2006-07':{dev:-2,src:'est'}, '2009-10':{dev:-3,src:'est'},
+             '2014-16':{dev:-4,src:'est'}, '2018-19':{dev:-1,src:'est'}, '2023-24':{dev:-3,src:'est'} },
+    supply:{ stocks:null, use:null, src:'todo' }, // TODO FAO/USDA: banana export volume (no meaningful stocks — perishable)
+    superNote:"2015–16 over-raining in Ecuador drove notable disease pressure; the documented 2023–24 coastal flooding repeated the pattern on the export-leading crop.",
+    trendIdx:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],vals:[85,82,88,97,103,106,108,108,107,106,104,102],src:'2026 est.'},
+    verdict:'MIXED',
+    verdictNote:"Global volume keeps grinding higher on new area, but Ecuador suffers episodic El Niño flood disruptions and a rising structural disease (TR4/Sigatoka) overhang.",
+    tiles:{ 'Export volume':{v:'Grinding up',d:'up',n:'New area in W. Africa/SE Asia'},
+            Ecuador:{v:'Flood-exposed',d:'down',n:'Coastal rain disrupts harvest/logistics'},
+            'Planted area':{v:'+ Slight',d:'up',n:'Diversifying source regions'},
+            'Inventory':{v:'None',d:'flat',n:'Perishable — no buffer'} },
+    predict:"Expect <strong>acute but short Ecuador disruptions in Q1–Q2 2026</strong> if coastal rains intensify — weeks, not months, of export interruption, plus disease flare-ups. The structural fungal-disease risk is the bigger long-run threat. (Banana production figures are less granular in the source reports; the flood mechanism is well documented by WFP.)",
+    dir:'Episodic disruption ↓', dirColor:'var(--accent)',
+    geo:{lat:-2.19,lon:-79.88,place:'Guayaquil (banana export coast), Ecuador'},
+    locked: true
+  }
+};
+
+// ── OUTCOME METRICS ─────────────────────────────────────────────────
+// Each commodity gets 3 toggleable outcomes (volume / yield / quality-type).
+// volume.events always mirrors C[k].events for backward compat.
+C.cocoa.outcomes={
+  volume:   {label:'Production Volume',  unit:'total output YoY %',       events:C.cocoa.events},
+  yield:    {label:'Yield per Hectare',  unit:'kg/ha YoY %',              events:{'2002-03':{dev:-8,src:'est'},'2004-05':{dev:-3,src:'est'},'2006-07':{dev:-10,src:'rep'},'2009-10':{dev:1,src:'rep'},'2014-16':{dev:0,src:'rep'},'2018-19':{dev:0,src:'rep'},'2023-24':{dev:0,src:'rep'}}},  // rep = FAO/OWID pipeline, production-weighted 7 major growers
+  quality:  {label:'Bean Weight / Quality', unit:'grade quality YoY %',   events:{'2002-03':{dev:-9,src:'est'},'2004-05':{dev:-3,src:'est'},'2006-07':{dev:-8,src:'est'},'2009-10':{dev:-11,src:'est'},'2014-16':{dev:-7,src:'est'},'2018-19':{dev:-5,src:'est'},'2023-24':{dev:-17,src:'est'}}}
+};
+C.palmoil.outcomes={
+  volume:     {label:'CPO Production',         unit:'total output YoY %', events:C.palmoil.events},
+  yield:      {label:'FFB Yield / Hectare',    unit:'t/ha YoY %',         events:{'2002-03':{dev:-4,src:'est'},'2004-05':{dev:-2,src:'est'},'2006-07':{dev:-9,src:'rep'},'2009-10':{dev:2,src:'rep'},'2014-16':{dev:-9,src:'rep'},'2018-19':{dev:0,src:'rep'},'2023-24':{dev:-5,src:'est'}}},  // rep = FAO/OWID pipeline, Indon+Malay weighted; 2023-24 est (9-18mo lag hits 2025)
+  extraction: {label:'Oil Extraction Rate',   unit:'OER YoY %',           events:{'2002-03':{dev:-5,src:'est'},'2004-05':{dev:-2,src:'est'},'2006-07':{dev:-7,src:'est'},'2009-10':{dev:-4,src:'est'},'2014-16':{dev:-12,src:'est'},'2018-19':{dev:-2,src:'est'},'2023-24':{dev:-7,src:'est'}}}
+};
+C.sugar.outcomes={
+  volume:   {label:'Sugar Production',    unit:'total output YoY %',      events:C.sugar.events},
+  cane:     {label:'Cane Yield',          unit:'t/ha YoY %',              events:{'2002-03':{dev:-4,src:'est'},'2004-05':{dev:-2,src:'est'},'2006-07':{dev:-3,src:'est'},'2009-10':{dev:-7,src:'est'},'2014-16':{dev:-6,src:'est'},'2018-19':{dev:-3,src:'est'},'2023-24':{dev:-7,src:'est'}}},
+  recovery: {label:'Sugar Recovery Rate', unit:'sucrose % YoY %',         events:{'2002-03':{dev:-2,src:'est'},'2004-05':{dev:-1,src:'est'},'2006-07':{dev:-1,src:'est'},'2009-10':{dev:-3,src:'est'},'2014-16':{dev:-2,src:'est'},'2018-19':{dev:-1,src:'est'},'2023-24':{dev:-3,src:'est'}}}
+};
+C.coffee.outcomes={
+  volume:  {label:'Total Production', unit:'combined output YoY %',       events:C.coffee.events},
+  robusta: {label:'Robusta Output',   unit:'Vietnam/Indonesia YoY %',     events:{'2002-03':{dev:-5,src:'est'},'2004-05':{dev:-3,src:'est'},'2006-07':{dev:-4,src:'est'},'2009-10':{dev:-7,src:'est'},'2014-16':{dev:-8,src:'est'},'2018-19':{dev:-2,src:'est'},'2023-24':{dev:-5,src:'est'}}},
+  arabica: {label:'Arabica Output',   unit:'Brazil/C.America YoY %',      events:{'2002-03':{dev:-1,src:'est'},'2004-05':{dev:-1,src:'est'},'2006-07':{dev:0,src:'est'},'2009-10':{dev:-1,src:'est'},'2014-16':{dev:-2,src:'est'},'2018-19':{dev:0,src:'est'},'2023-24':{dev:-1,src:'est'}}}
+};
+C.bananas.outcomes={
+  volume: {label:'Export Volume',   unit:'total export YoY %',            events:C.bananas.events},
+  yield:  {label:'Yield / Hectare', unit:'t/ha YoY %',                    events:{'2002-03':{dev:-3,src:'est'},'2004-05':{dev:-2,src:'est'},'2006-07':{dev:-3,src:'est'},'2009-10':{dev:-4,src:'est'},'2014-16':{dev:-6,src:'est'},'2018-19':{dev:-2,src:'est'},'2023-24':{dev:-4,src:'est'}}},
+  bunch:  {label:'Bunch Weight',    unit:'kg/bunch YoY %',                events:{'2002-03':{dev:-4,src:'est'},'2004-05':{dev:-2,src:'est'},'2006-07':{dev:-4,src:'est'},'2009-10':{dev:-6,src:'est'},'2014-16':{dev:-8,src:'est'},'2018-19':{dev:-2,src:'est'},'2023-24':{dev:-6,src:'est'}}}
+};
+
+// ── PER-OUTCOME SENSITIVITY DRIVERS ─────────────────────────────────────────────────────
+C.cocoa.outcomes.volume.why=[
+  "Excess Jul–Aug rain spreads Black-pod disease and swollen-shoot virus — fewer harvestable pods means lower total output.",
+  "Harmattan drought (Dec–Feb) desiccates developing pods and cuts mid-crop weight — direct volume loss.",
+  "Production is geographically concentrated: a single West African climate zone drives 60–75% of supply with no diversification hedge."
+];
+C.cocoa.outcomes.yield.why=[
+  "Disease pressure (Black-pod, swollen-shoot) reduces pods per tree, not just harvestable area — yield per hectare falls independent of planted area.",
+  "Harmattan drought reduces photosynthesis and bean fill: fewer beans set per pod, and existing beans are smaller and lighter.",
+  "Perennial crop: stress damage in one season weakens tree health and carries into the following season's yield."
+];
+C.cocoa.outcomes.quality.why=[
+  "Excess rain during harvest causes beans to absorb moisture, lowering dry weight and raising defect rates — down-grading at export.",
+  "Harmattan desiccation of developing beans produces smaller, off-grade beans with lower fat content.",
+  "Disease-damaged pods consistently yield off-grade, poorly-formed beans that fail premium-grade thresholds."
+];
+C.palmoil.outcomes.volume.why=[
+  "Drought reduces fresh-fruit-bunch (FFB) formation on palms; fewer bunches harvested means lower CPO output even at normal extraction rates.",
+  "9–18 month lag: drought stress starting in Jul 2026 suppresses FFB yields through 2027, making volume the slowest-moving and longest-lasting signal.",
+  "Indonesia's B50 biodiesel mandate (Jul 2026) adds structural demand on top of any weather hit — tightening exportable supply further."
+];
+C.palmoil.outcomes.yield.why=[
+  "Drought causes water stress and premature fruit abscission — bunches drop before harvest, directly cutting tonnes per hectare.",
+  "Heat stress during fruit development reduces bunch weight; fires and haze thin the canopy and reduce photosynthate supply to fruit.",
+  "El Niño dryness in the Maritime Continent is the primary yield signal — Malaysia fell ~−14% in 2015–16 (USDA IPAD)."
+];
+C.palmoil.outcomes.extraction.why=[
+  "Drought causes premature ripening of fruit: dehydrated bunches yield less oil per tonne processed even if harvested on schedule.",
+  "Heat stress increases free fatty acid (FFA) content in ripe fruit — lower-quality oil with a smaller refinable fraction reduces effective OER.",
+  "Haze and smoke exposure during harvest accelerates oxidation of fruit bunches before milling, further reducing extractable oil."
+];
+C.sugar.outcomes.volume.why=[
+  "The South Asian monsoon (Jun–Sep) provides 75% of India's annual rainfall — a below-normal monsoon cuts cane biomass by 20–40% in the worst events.",
+  "India restricts sugar exports when its crop disappoints, amplifying the global supply shock beyond the raw production miss.",
+  "Brazil's Center-South can partially offset India and Thailand losses, but its cane calendar is fixed and cannot fill a sudden gap."
+];
+C.sugar.outcomes.cane.why=[
+  "Monsoon deficit reduces stalk elongation — shorter, lighter cane at harvest — with Jul–Aug drought stress at critical growth stages being largely irreversible.",
+  "Heat above 38°C accelerates sucrose inversion inside the stalk, reducing recoverable sugar content per tonne of cane.",
+  "Thailand's cane belt is similarly monsoon-dependent: a weakened monsoon hits both major Asian producers simultaneously."
+];
+C.sugar.outcomes.recovery.why=[
+  "El Niño brings warmer, drier conditions to Brazil's Center-South — elevated heat lowers total recoverable sugars (TRS) even when cane tonnage holds.",
+  "In drought-stressed Indian cane, sucrose concentration at harvest is lower and the juice-to-fibre ratio less favourable for milling.",
+  "Excess rain in Brazil dilutes sucrose concentration in stalks — recovery rate (% sucrose) falls even as raw cane volume holds."
+];
+C.coffee.outcomes.volume.why=[
+  "Vietnam's robusta belt (dominant supply) sits squarely in El Niño's dry signal — drought cuts both canopy water supply and flowering.",
+  "Central American Arabica faces a below-normal wet season (Jun–Oct), reducing growing water at the same time as Sep–Nov flowering.",
+  "2026 is Brazil's biennial Arabica off-year — structural output dip coincides with El Niño risk, leaving less cushion."
+];
+C.coffee.outcomes.robusta.why=[
+  "Drought during Jun–Aug wet season reduces water uptake in Vietnam's lowland robusta belt — the world's largest single robusta source.",
+  "Sep–Nov flowering deficit: if the wet season fails, fewer cherries set and the following harvest is cut regardless of later rainfall.",
+  "Indonesia's robusta faces the same Maritime Continent dry signal; combined, Vietnam and Indonesia account for most global robusta supply."
+];
+C.coffee.outcomes.arabica.why=[
+  "Central American Arabica wet season (Jun–Oct) is shortened under El Niño — Honduras, Guatemala, and Nicaragua all document yield losses.",
+  "Brazil's Center-South Arabica is more mixed: El Niño often brings drier winters preferred for flowering, partially offsetting Central America losses.",
+  "2026 is an off-year in Brazil's biennial Arabica cycle — any weather hit amplifies the natural production dip."
+];
+C.bananas.outcomes.volume.why=[
+  "Coastal Ecuador flooding (Jan–Apr) directly disrupts harvest logistics, cold-chain access, and export loading — Ecuador supplies ~30% of global banana trade.",
+  "Black Sigatoka fungal disease spreads rapidly in warm, humid flood conditions — infected plantations lose productive capacity for the full season.",
+  "Philippines faces the opposite signal (drought), tightening supply from both sides of the trade simultaneously."
+];
+C.bananas.outcomes.yield.why=[
+  "Flooded, waterlogged soils damage root systems — reduced nutrient uptake suppresses bunch set per plant for the remainder of the season.",
+  "Disease defoliation (Sigatoka strips leaves) reduces photosynthesis — assimilate supply to developing bunches falls, cutting yield per hectare.",
+  "Sustained wet conditions prevent field machinery from operating — delayed harvests cause yield losses as bunches over-ripen on the plant."
+];
+C.bananas.outcomes.bunch.why=[
+  "Excess water causes a dilution effect inside developing fruit — bunches are physically larger but lighter per unit with lower starch density.",
+  "Sigatoka leaf damage reduces the assimilate flow to individual bunches — fewer fingers per hand and lower weight per bunch at harvest.",
+  "Harvest disruption forces growers to pick underweight or over-mature bunches to clear fields before flooding worsens — average bunch weight falls."
+];
+
+// ── RECENT TRAJECTORIES (per outcome, last 5–6 years) ───────────────────────────────────
+// src:'rep' = named published source  |  src:'est' = ESTIMATED BY CLAUDE
+// abs = approximate level with unit   |  note = citation or one-line reasoning
+// These are distinct from the El Niño event rows above — they cover recent non-event years
+// to show momentum going into 2026.
+C.cocoa.outcomes.volume.trajectory=[
+  // 2000–2011: ICCO historical estimates (calendar-year basis)
+  {yr:'2000',yoy:null, src:'est',note:'ICCO historical — baseline year'},
+  {yr:'2001',yoy:+3.7, src:'est',note:'ICCO historical — above-trend W.Africa rains'},
+  {yr:'2002',yoy:-8.9, src:'est',note:'ICCO historical — CIV civil war + El Niño drought compounded'},
+  {yr:'2003',yoy:+23.1,src:'est',note:'ICCO historical — CIV recovery + good W.Africa rains'},
+  {yr:'2004',yoy:-3.7, src:'est',note:'ICCO historical — weak El Niño + lingering CIV instability'},
+  {yr:'2005',yoy:+8.9, src:'est',note:'ICCO historical — recovery year'},
+  {yr:'2006',yoy:-8.9, src:'est',note:'ICCO historical — moderate El Niño; Harmattan + Black-pod disease'},
+  {yr:'2007',yoy:+12.0,src:'est',note:'ICCO historical — La Niña rebound'},
+  {yr:'2008',yoy:-7.0, src:'est',note:'ICCO historical — La Niña dry spell + disease pressure'},
+  {yr:'2009',yoy:+2.5, src:'est',note:'ICCO historical — El Niño but moderate event; main-crop rains offset'},
+  {yr:'2010',yoy:+19.1,src:'est',note:'ICCO historical — La Niña bumper year'},
+  {yr:'2011',yoy:-2.0, src:'est',note:'ICCO historical estimate — normalization after La Niña bumper'},
+  // 2012–2025: ICCO World Total YoY% from Wells Fargo Securities Exhibit 9.
+  // ICCO crop year convention: Exhibit 9 column "N" = crop year N/N+1, whose main harvest
+  // falls in calendar year N+1. Chart year = Exhibit 9 column + 1.
+  {yr:'2012',yoy:-5.3, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2011 (crop yr 2011/12)'},
+  {yr:'2013',yoy:-3.5, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2012 (crop yr 2012/13)'},
+  {yr:'2014',yoy:+10.9,src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2013 (crop yr 2013/14)'},
+  {yr:'2015',yoy:-2.8, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2014 (crop yr 2014/15); El Niño 2014–16 onset'},
+  {yr:'2016',yoy:-6.0, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2015 (crop yr 2015/16); El Niño 2014–16 peak'},
+  {yr:'2017',yoy:+18.4,src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2016 (crop yr 2016/17); post-El Niño rebound'},
+  {yr:'2018',yoy:-1.8, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2017 (crop yr 2017/18)'},
+  {yr:'2019',yoy:+3.2, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2018 (crop yr 2018/19); El Niño 2018–19'},
+  {yr:'2020',yoy:-1.1, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2019 (crop yr 2019/20)'},
+  {yr:'2021',yoy:+10.6,src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2020 (crop yr 2020/21)'},
+  {yr:'2022',yoy:-7.9, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2021 (crop yr 2021/22)'},
+  {yr:'2023',yoy:+3.9, src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2022 (crop yr 2022/23)'},
+  {yr:'2024',yoy:-12.9,src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2023 (crop yr 2023/24); El Niño 2023–24 worst drop on record'},
+  {yr:'2025',yoy:+10.8,src:'rep',note:'ICCO / Wells Fargo Securities Exhibit 9 — col 2024 (crop yr 2024/25); post-El Niño partial rebound'},
+];
+C.cocoa.outcomes.yield.trajectory=[
+  {yr:'2020/21',yoy:+6.5,abs:'~348 kg/ha',src:'est',note:'ESTIMATED BY CLAUDE — derived from ICCO production ÷ FAO harvested-area estimates'},
+  {yr:'2021/22',yoy:+1.7,abs:'~354 kg/ha',src:'est',note:'ESTIMATED BY CLAUDE — derived from ICCO / FAO'},
+  {yr:'2022/23',yoy:-3.9,abs:'~340 kg/ha',src:'est',note:'ESTIMATED BY CLAUDE — disease and tree age beginning to depress kg/ha'},
+  {yr:'2023/24',yoy:-12.9,abs:'~296 kg/ha',src:'est',note:'ESTIMATED BY CLAUDE — El Niño + endemic SSV; worst yield estimate on record'},
+  {yr:'2024/25',yoy:+4.7,abs:'~310 kg/ha',src:'est',note:'ESTIMATED BY CLAUDE — partial recovery; replanting too slow to restore baseline'},
+  {yr:'2025/26',yoy:+3.0,abs:'~320 kg/ha',src:'est',note:'ESTIMATED BY CLAUDE — gradual improvement; tree age still a structural drag'},
+];
+C.cocoa.outcomes.quality.trajectory=[
+  {yr:'2021/22',yoy:-1.5,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — sub-grade bean proportion rising with Swollen Shoot Virus spread'},
+  {yr:'2022/23',yoy:-3.2,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — declining bean weight with ageing plantations and disease'},
+  {yr:'2023/24',yoy:-8.5,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — high off-grade proportion reported by ICCO; significant degradation'},
+  {yr:'2024/25',yoy:+2.1,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — slight improvement with production recovery; still below 2021 baseline'},
+  {yr:'2025/26',yoy:+1.8,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — quality trajectory broadly mirrors yield recovery'},
+];
+C.palmoil.outcomes.volume.trajectory=[
+  {yr:'2021',yoy:+2.1,abs:'73.5 MMT',src:'rep',note:'USDA FAS PSD Nov 2024 — global CPO production'},
+  {yr:'2022',yoy:+2.0,abs:'75.0 MMT',src:'rep',note:'USDA FAS PSD Nov 2024'},
+  {yr:'2023',yoy:+1.7,abs:'76.3 MMT',src:'rep',note:'USDA FAS PSD Nov 2024'},
+  {yr:'2024',yoy:+0.7,abs:'~76.8 MMT',src:'rep',note:'USDA FAS PSD May 2025'},
+  {yr:'2025',yoy:+1.6,abs:'~78.0 MMT',src:'est',note:'ESTIMATED BY CLAUDE — USDA May 2025 forecast ~+1.5%; lagged 2023 El Niño still suppressing MY/ID'},
+  {yr:'2026',yoy:+0.5,abs:'~78.4 MMT',src:'est',note:'ESTIMATED BY CLAUDE — B40 mandate diverting supply; new area expansion slowing'},
+];
+C.palmoil.outcomes.yield.trajectory=[
+  {yr:'2021',yoy:+2.9,abs:'17.9 t/ha',src:'rep',note:'MPOB Annual Review 2021 — Malaysia FFB yield per hectare'},
+  {yr:'2022',yoy:-1.7,abs:'17.6 t/ha',src:'rep',note:'MPOB Annual Review 2022'},
+  {yr:'2023',yoy:+1.1,abs:'17.8 t/ha',src:'rep',note:'MPOB Annual Review 2023'},
+  {yr:'2024',yoy:+1.1,abs:'~18.0 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — based on MPOB monthly trend through mid-2025'},
+  {yr:'2025',yoy:-2.2,abs:'~17.6 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — lagged 2023-24 drought impact; 9–18 mo lag typical for oil palm'},
+  {yr:'2026',yoy:-4.5,abs:'~16.8 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — 2025/26 El Niño heat/drought risk; conditional on ONI ≥ +1.5°C'},
+];
+C.palmoil.outcomes.extraction.trajectory=[
+  {yr:'2020',yoy:+0.6,abs:'20.28%',src:'rep',note:'MPOB validated seed — Annual Overview 2020'},
+  {yr:'2021',yoy:+0.4,abs:'20.37%',src:'rep',note:'MPOB validated seed — Annual Overview 2021'},
+  {yr:'2022',yoy:-1.1,abs:'20.14%',src:'rep',note:'MPOB validated seed — Annual Overview 2022'},
+  {yr:'2023',yoy:+0.0,abs:'20.15%',src:'rep',note:'MPOB validated seed — Annual Overview 2023'},
+  {yr:'2024',yoy:+0.3,abs:'20.22%',src:'rep',note:'MPOB validated seed — Annual Overview 2024'},
+  {yr:'2025',yoy:-1.1,abs:'~20.00%',src:'est',note:'ESTIMATED BY CLAUDE — lagged FFB stress from 2023-24 drought lowers oil content'},
+];
+C.sugar.outcomes.volume.trajectory=[
+  {yr:'2020/21',yoy:+7.9,abs:'180.2 MMT',src:'rep',note:'USDA WASDE May 2025 — global centrifugal sugar production'},
+  {yr:'2021/22',yoy:+1.0,abs:'182.0 MMT',src:'rep',note:'USDA WASDE May 2025'},
+  {yr:'2022/23',yoy:-1.2,abs:'179.8 MMT',src:'rep',note:'USDA WASDE May 2025'},
+  {yr:'2023/24',yoy:-3.2,abs:'~174.0 MMT',src:'rep',note:'USDA WASDE May 2025 — India + Thailand El Niño losses'},
+  {yr:'2024/25',yoy:+2.9,abs:'~179.0 MMT',src:'rep',note:'USDA WASDE May 2025 preliminary — Asia partial recovery from 2023/24 El Niño losses'},
+  {yr:'2025/26',yoy:+1.1,abs:'~181.0 MMT',src:'est',note:'ESTIMATED BY CLAUDE — conditional on normal India monsoon (Jun–Sep 2025)'},
+];
+C.sugar.outcomes.cane.trajectory=[
+  {yr:'2020/21',yoy:+2.1,abs:'~75 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — India+Thailand weighted proxy; above-normal monsoon year'},
+  {yr:'2021/22',yoy:-0.5,abs:'~74.6 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — slightly below trend; mixed regional performance'},
+  {yr:'2022/23',yoy:-2.7,abs:'~72.6 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — India early monsoon withdrawal; Thailand dry Q4'},
+  {yr:'2023/24',yoy:-5.5,abs:'~68.6 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — India monsoon −8% below LPA; Thailand output dropped ~2.5 MMT'},
+  {yr:'2024/25',yoy:+3.2,abs:'~70.8 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — India monsoon recovery; Thailand replanting continuing'},
+  {yr:'2025/26',yoy:+1.5,abs:'~71.9 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — normalisation if 2026 monsoon runs near long-period average'},
+];
+C.sugar.outcomes.recovery.trajectory=[
+  {yr:'2021/22',yoy:+0.3,abs:'~14.5% ATR',src:'est',note:'ESTIMATED BY CLAUDE — Brazil dry-start harvest; sucrose content above trend'},
+  {yr:'2022/23',yoy:-0.8,abs:'~14.4% ATR',src:'est',note:'ESTIMATED BY CLAUDE — Brazil higher rainfall reduces TRS/ATR; India quality soft'},
+  {yr:'2023/24',yoy:-1.5,abs:'~14.2% ATR',src:'est',note:'ESTIMATED BY CLAUDE — El Niño over-rain in Brazil C-S cuts TRS; India also soft'},
+  {yr:'2024/25',yoy:+0.7,abs:'~14.3% ATR',src:'est',note:'ESTIMATED BY CLAUDE — Brazil dry-start 2025 harvest; recovery in sucrose content'},
+  {yr:'2025/26',yoy:+0.5,abs:'~14.4% ATR',src:'est',note:'ESTIMATED BY CLAUDE — conditional on Brazil Nov–Dec 2025 planting-window weather'},
+];
+C.coffee.outcomes.volume.trajectory=[
+  {yr:'2020/21',yoy:-1.1,abs:'169.3 M bags',src:'rep',note:'ICO Coffee Report 2021 — ico.org'},
+  {yr:'2021/22',yoy:-1.1,abs:'167.5 M bags',src:'rep',note:'ICO Coffee Report 2022 — La Niña drought hit Vietnam'},
+  {yr:'2022/23',yoy:+1.5,abs:'170.0 M bags',src:'rep',note:'USDA FAS Coffee Annual 2023'},
+  {yr:'2023/24',yoy:+2.4,abs:'~174.1 M bags',src:'rep',note:'USDA FAS Coffee Annual 2024 / ICO provisional — Brazil on-year + Vietnam recovery'},
+  {yr:'2024/25',yoy:+1.7,abs:'~177.0 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil on-year; Vietnam plateau; Colombia stable'},
+  {yr:'2025/26',yoy:-1.2,abs:'~175.0 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil off-year 2026 + El Niño Vietnam/Indonesia pressure'},
+];
+C.coffee.outcomes.robusta.trajectory=[
+  {yr:'2020/21',yoy:-5.8,abs:'~54 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Vietnam La Niña drought; Indonesia broadly stable'},
+  {yr:'2021/22',yoy:-1.9,abs:'~53 M bags',src:'est',note:'ESTIMATED BY CLAUDE — second consecutive Vietnam below-trend season'},
+  {yr:'2022/23',yoy:+5.7,abs:'~56 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Vietnam strong post-drought recovery; USDA FAS 2023 proxy'},
+  {yr:'2023/24',yoy:+3.6,abs:'~58 M bags',src:'est',note:'ESTIMATED BY CLAUDE — continued Vietnam rebuild; Indonesia stable'},
+  {yr:'2024/25',yoy:+1.7,abs:'~59 M bags',src:'est',note:'ESTIMATED BY CLAUDE — near-plateau; El Niño beginning to suppress Vietnam mid-2025'},
+  {yr:'2025/26',yoy:-3.4,abs:'~57 M bags',src:'est',note:'ESTIMATED BY CLAUDE — El Niño dry Sep–Nov suppresses Vietnam flowering; Indonesia sub-trend'},
+];
+C.coffee.outcomes.arabica.trajectory=[
+  {yr:'2020/21',yoy:+3.5,abs:'~97 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil on-year 2021; USDA FAS proxy'},
+  {yr:'2021/22',yoy:-2.1,abs:'~95 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil off-year 2022; Minas Gerais frosts Jul 2021'},
+  {yr:'2022/23',yoy:+1.1,abs:'~96 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil on-year moderate; C.America mixed'},
+  {yr:'2023/24',yoy:+2.1,abs:'~98 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil on-year strong; Colombia and Ethiopia positive'},
+  {yr:'2024/25',yoy:+2.0,abs:'~100 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil off-year; Colombia compensates; C.America steady'},
+  {yr:'2025/26',yoy:-1.0,abs:'~99 M bags',src:'est',note:'ESTIMATED BY CLAUDE — Brazil off-year 2026; C.America El Niño dry-wet-season risk'},
+];
+C.bananas.outcomes.volume.trajectory=[
+  {yr:'2021',yoy:+4.2,abs:'17.2 MMT',src:'rep',note:'FAO FAOSTAT 2023 edition — global banana export volume'},
+  {yr:'2022',yoy:+1.2,abs:'17.4 MMT',src:'rep',note:'FAO FAOSTAT 2024 edition'},
+  {yr:'2023',yoy:-2.9,abs:'~16.9 MMT',src:'est',note:'ESTIMATED BY CLAUDE — Ecuador Q1 coastal flooding (130k affected per WFP); FAO preliminary'},
+  {yr:'2024',yoy:+2.4,abs:'~17.3 MMT',src:'est',note:'ESTIMATED BY CLAUDE — post-flood Ecuador recovery; W.Africa/SE Asia new area'},
+  {yr:'2025',yoy:+1.2,abs:'~17.5 MMT',src:'est',note:'ESTIMATED BY CLAUDE — trend growth; Ecuador stable'},
+  {yr:'2026',yoy:-2.3,abs:'~17.1 MMT',src:'est',note:'ESTIMATED BY CLAUDE — El Niño coastal flood risk Ecuador Q1–Q2; acute but short disruption'},
+];
+C.bananas.outcomes.yield.trajectory=[
+  {yr:'2021',yoy:+2.1,abs:'~27.5 t/ha',src:'rep',note:'FAO FAOSTAT 2023 edition — global banana yield per hectare'},
+  {yr:'2022',yoy:-0.4,abs:'~27.4 t/ha',src:'rep',note:'FAO FAOSTAT 2024 edition — global banana yield per hectare'},
+  {yr:'2023',yoy:-3.3,abs:'~26.5 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — Ecuador flooding disrupts harvest density; Black Sigatoka elevated'},
+  {yr:'2024',yoy:+2.3,abs:'~27.1 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — Ecuador recovery; Philippines and Colombia steady'},
+  {yr:'2025',yoy:+0.7,abs:'~27.3 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — gradual improvement; TR4 disease still structural drag in Asia'},
+  {yr:'2026',yoy:-2.6,abs:'~26.6 t/ha',src:'est',note:'ESTIMATED BY CLAUDE — Ecuador flood + disease risk; conditional on El Niño coastal timing'},
+];
+C.bananas.outcomes.bunch.trajectory=[
+  {yr:'2021',yoy:+1.5,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — bunch weight tracks yield; normal conditions'},
+  {yr:'2022',yoy:-0.8,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — slight quality softening Ecuador; Philippines steady'},
+  {yr:'2023',yoy:-4.2,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — flooding stress reduces bunch fill; Black Sigatoka degrades quality'},
+  {yr:'2024',yoy:+2.8,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — recovery in Ecuador growing conditions post-flooding'},
+  {yr:'2025',yoy:+0.9,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — near-normal; TR4 overhang limits upside'},
+  {yr:'2026',yoy:-3.0,abs:'—',src:'est',note:'ESTIMATED BY CLAUDE — El Niño flood + disease risk; bunch weight sensitive to soil-saturation events'},
+];
+
+// ── CONFOUNDERS — non-El-Niño factors that co-occurred in each event year ───────────────
+// For each commodity, note structural, policy, or separate-weather causes that may have
+// amplified or offset the ENSO signal. Displayed in the "Contributing factors" table.
+// Sources: ICCO annual reports, USDA WASDE, ICO, FAO, IRI/CRED EM-DAT, peer-reviewed literature.
+C.cocoa.confounders={
+  '2002-03':"Côte d'Ivoire First Civil War (2002–07) disrupted transport routes and producer access; decade of limited replanting beginning to reduce tree vigour",
+  '2006-07':"Ongoing Côte d'Ivoire political instability limiting fertilizer and agro-input access; Swollen Shoot Virus (SSV) spreading independently of weather; ageing plantation stock",
+  '2009-10':"Global Financial Crisis reduced chocolate grindings demand in 2008–09; continued tree ageing; post-conflict recovery limited planting investment",
+  '2014-16':"Living Income Differential (LID) discussions beginning to affect producer planting incentives; ageing trees (avg 30+ yrs in Ghana); ICCO structural deficit starting to build",
+  '2018-19':"Ghana/CIV joint minimum-price floor (LID launched 2019); Ghana COCOBOD debt pressures limiting extension services; SSV endemic affecting ~1M ha in Ghana",
+  '2023-24':"Multi-year structural supply deficit pre-dating ENSO (5 consecutive deficit seasons by 2023); endemic SSV decimating Ghana area; thin ICCO forward-sale book locked in at pre-crisis prices"
+};
+C.palmoil.confounders={
+  '2002-03':"Indonesia's regional decentralization (1999–2003) creating land-use uncertainty; rapid Malaysia plantation expansion offsetting weather losses; strong China import demand growth",
+  '2006-07':"Malaysia and Indonesia introducing early biodiesel mandates diverting oil; rapid new-area maturation boosting yields independently",
+  '2009-10':"GFC dampened biodiesel demand; Indonesia's replanting incentive programme; continued new-area yield gains from 2005–08 plantings",
+  '2014-16':"Indonesia's peat concession moratorium (2011, renewed 2015) limiting new planting; Indonesia B15 biodiesel mandate introduction; EU RSPO certification pressure reducing non-certified supply",
+  '2018-19':"EU Renewable Energy Directive II (RED II) phase-out of palm biodiesel clouding demand outlook; Indonesia B20 mandate; US–China trade tensions affecting vegetable-oil flows",
+  '2023-24':"Indonesia's B35 biodiesel mandate (expanding to B40 July 2026) diverting domestic supply; EU Deforestation Regulation (EUDR) creating trade uncertainty; new-area maturation lifting Malaysian yields independently of weather"
+};
+C.sugar.confounders={
+  '2002-03':"Brazilian real still weak post-1999 devaluation, boosting export competitiveness; global oversupply from record Brazilian crop pushing world balance into surplus",
+  '2006-07':"Brazil's flex-fuel boom — mills diverting large cane volumes from sugar to ethanol; EU sugar regime reform (2006) cutting European beet production",
+  '2009-10':"Indian monsoon deficiency in 2009 (coinciding but not solely caused by ENSO); Pakistan floods disrupting minor supply; GFC reduced industrial sugar demand",
+  '2014-16':"Brazil's Sudeste drought (2014–15) — attributed primarily to blocking highs and Atlantic SSTs, not ENSO — cut cane yield independently; India's MSP increases inflating planted area",
+  '2018-19':"India's Maximum Admissible Export Quantity (MAEQ) subsidy scheme distorting trade flows; Brazil's Petrobras fuel pricing policy diverting cane to ethanol; Thailand groundwater access subsidies",
+  '2023-24':"India's government ban on all white and parboiled rice exports (Aug 2023) — a direct policy restriction amplifying any weather signal; Brazil Center-South bumper crop partially offsetting Asian losses"
+};
+C.coffee.confounders={
+  '2002-03':"Global coffee price crisis (oversupply 1999–2004); Vietnam's dramatic Robusta plantation expansion depressing the Robusta category; ICO composite near 20-year lows",
+  '2006-07':"Colombia coffee leaf rust (roya) outbreak beginning, unrelated to ENSO; Vietnam surpassing 1M ha Robusta area; specialty coffee premium-tier growth",
+  '2009-10':"Colombia's severe coffee leaf rust epidemic (2008–2011) — documented as a separate fungal event; Brazil's biennial off-year (2009) coinciding; GFC dampened high-end demand",
+  '2014-16':"Brazil's Minas Gerais drought (2014–15) — driven primarily by Atlantic blocking highs, not ENSO signal — cut Arabica output independently; Central America roya persisting; Vietnam ageing trees",
+  '2018-19':"Brazil Arabica biennial off-year 2018; ICO sustainability crisis; US–China trade war affecting shipping/logistics costs; Vietnam's structural tree-ageing issue growing",
+  '2023-24':"Vietnam's ageing Robusta tree stock (significant area 15+ years old); Indonesia structural replanting push reducing near-term output; Brazil Arabica biennial off-year 2023"
+};
+C.bananas.confounders={
+  '2002-03':"Panama disease (Fusarium wilt) spreading in Asia and Africa (pre-TR4 in Americas); Dole/Chiquita market consolidation affecting supply chain",
+  '2006-07':"Tropical Race 4 (TR4) confirmed spreading in Southeast Asia independent of weather; Philippines labour disputes",
+  '2009-10':"Ecuador port infrastructure improvements partially offsetting weather losses; Colombia and Peru entering export market adding supply",
+  '2014-16':"First confirmed TR4 cases in Latin America (2014–15) — a structural disease risk separate from ENSO; Colombia independent flooding; Philippines Typhoon Hagupit (2014) separate from El Niño pattern",
+  '2018-19':"TR4 confirmed in Colombia and Peru (2019) — major structural threat to Cavendish variety independent of El Niño; Ecuador Cavendish area declining due to disease, not weather",
+  '2023-24':"TR4 spread confirmed across Latin America threatening Ecuador supply as a structural issue; Philippines Typhoon Egay (July 2023) separate from the ENSO rainfall pattern; Ecuador coastal flooding partially an ENSO effect but also driven by broader warm SST in the Niño 1+2 region"
+};
+
+// Before / during absolute production levels for the primary VOLUME outcome per commodity per El Niño event.
+// bYr/dYr = crop-year or calendar-year label  |  bAbs/dAbs = level string with unit
+// bSrc/dSrc: 'rep' = named published source   |  'est' = ESTIMATED BY CLAUDE
+// note = offsetting factor or lag caveat
+const EL_NINO_ABS = {
+  cocoa:{
+    '2002-03':{bYr:'2001/02',bAbs:'~3,177 kt', bSrc:'est',dYr:'2002/03',dAbs:'~2,986 kt', dSrc:'est'},
+    '2004-05':{bYr:'2003/04',bAbs:'~3,600 kt', bSrc:'est',dYr:'2004/05',dAbs:'~3,528 kt', dSrc:'est'},
+    '2006-07':{bYr:'2005/06',bAbs:'~3,730 kt', bSrc:'est',dYr:'2006/07',dAbs:'~3,543 kt', dSrc:'est'},
+    '2009-10':{bYr:'2008/09',bAbs:'~3,510 kt', bSrc:'est',dYr:'2009/10',dAbs:'~3,264 kt', dSrc:'est'},
+    '2014-16':{bYr:'2013/14',bAbs:'~4,379 kt', bSrc:'rep',dYr:'2015/16',dAbs:'~4,204 kt', dSrc:'est'},
+    '2018-19':{bYr:'2017/18',bAbs:'~4,744 kt', bSrc:'est',dYr:'2018/19',dAbs:'~4,602 kt', dSrc:'est'},
+    '2023-24':{bYr:'2022/23',bAbs:'4,844 kt',  bSrc:'rep',dYr:'2023/24',dAbs:'~4,374 kt', dSrc:'rep'},
+  },
+  palmoil:{
+    '2002-03':{bYr:'2001',bAbs:'~27.4 MMT',bSrc:'est',dYr:'2002',   dAbs:'~26.6 MMT',dSrc:'est'},
+    '2004-05':{bYr:'2003',bAbs:'~30.1 MMT',bSrc:'est',dYr:'2004',   dAbs:'~29.8 MMT',dSrc:'est'},
+    '2006-07':{bYr:'2005',bAbs:'~37.5 MMT',bSrc:'est',dYr:'2006',   dAbs:'~36.0 MMT',dSrc:'est'},
+    '2009-10':{bYr:'2008',bAbs:'~45.3 MMT',bSrc:'est',dYr:'2009',   dAbs:'~44.4 MMT',dSrc:'est'},
+    '2014-16':{bYr:'2014',bAbs:'~63.0 MMT',bSrc:'rep',dYr:'2016',   dAbs:'~58.6 MMT',dSrc:'rep',note:'Palm has a 9–18 month yield lag — the 2015 drought hit CPO output in 2016. This is the only USDA-recorded negative global CPO balance in ~30 years.'},
+    '2018-19':{bYr:'2017',bAbs:'~69.8 MMT',bSrc:'est',dYr:'2018',   dAbs:'~69.1 MMT',dSrc:'est'},
+    '2023-24':{bYr:'2022',bAbs:'75.0 MMT', bSrc:'rep',dYr:'2024–25',dAbs:'~76.8–78.0 MMT',dSrc:'est',note:'9–18 month lag: the Jun 2023 onset drought will suppress CPO in 2025–26, not 2023. Production is still rising short-term.'},
+  },
+  sugar:{
+    '2002-03':{bYr:'2001/02',bAbs:'~138.6 MMT',bSrc:'est',dYr:'2002/03',dAbs:'~134.5 MMT',dSrc:'est'},
+    '2004-05':{bYr:'2003/04',bAbs:'~144.0 MMT',bSrc:'est',dYr:'2004/05',dAbs:'~142.6 MMT',dSrc:'est'},
+    '2006-07':{bYr:'2005/06',bAbs:'~158.8 MMT',bSrc:'est',dYr:'2006/07',dAbs:'~155.6 MMT',dSrc:'est'},
+    '2009-10':{bYr:'2008/09',bAbs:'~155.7 MMT',bSrc:'est',dYr:'2009/10',dAbs:'~147.9 MMT',dSrc:'est'},
+    '2014-16':{bYr:'2013/14',bAbs:'~176.8 MMT',bSrc:'est',dYr:'2015/16',dAbs:'~169.7 MMT',dSrc:'est'},
+    '2018-19':{bYr:'2017/18',bAbs:'~177.4 MMT',bSrc:'est',dYr:'2018/19',dAbs:'~173.8 MMT',dSrc:'est'},
+    '2023-24':{bYr:'2022/23',bAbs:'179.8 MMT', bSrc:'rep',dYr:'2023/24',dAbs:'~174.0 MMT',dSrc:'rep'},
+  },
+  coffee:{
+    '2002-03':{bYr:'2001/02',bAbs:'~109 M bags',bSrc:'est',dYr:'2002/03',dAbs:'~106 M bags',dSrc:'est'},
+    '2004-05':{bYr:'2003/04',bAbs:'~116 M bags',bSrc:'est',dYr:'2004/05',dAbs:'~114 M bags',dSrc:'est'},
+    '2006-07':{bYr:'2005/06',bAbs:'~124 M bags',bSrc:'est',dYr:'2006/07',dAbs:'~122 M bags',dSrc:'est'},
+    '2009-10':{bYr:'2008/09',bAbs:'~125 M bags',bSrc:'est',dYr:'2009/10',dAbs:'~120 M bags',dSrc:'est'},
+    '2014-16':{bYr:'2013/14',bAbs:'~155 M bags',bSrc:'est',dYr:'2015/16',dAbs:'~147 M bags',dSrc:'est'},
+    '2018-19':{bYr:'2017/18',bAbs:'~162 M bags',bSrc:'est',dYr:'2018/19',dAbs:'~161 M bags',dSrc:'est'},
+    '2023-24':{bYr:'2022/23',bAbs:'170.0 M bags',bSrc:'rep',dYr:'2023/24',dAbs:'~174.1 M bags',dSrc:'rep',note:'Production ROSE +2.4% YoY despite El Niño — Brazil on-year cycle and Vietnam recovery more than offset Robusta headwinds.'},
+  },
+  bananas:{
+    '2002-03':{bYr:'2001',bAbs:'~12.3 MMT',bSrc:'est',dYr:'2002',dAbs:'~12.1 MMT',dSrc:'est'},
+    '2004-05':{bYr:'2003',bAbs:'~13.1 MMT',bSrc:'est',dYr:'2004',dAbs:'~13.0 MMT',dSrc:'est'},
+    '2006-07':{bYr:'2005',bAbs:'~14.2 MMT',bSrc:'est',dYr:'2006',dAbs:'~13.9 MMT',dSrc:'est'},
+    '2009-10':{bYr:'2008',bAbs:'~14.9 MMT',bSrc:'est',dYr:'2009',dAbs:'~14.5 MMT',dSrc:'est'},
+    '2014-16':{bYr:'2013',bAbs:'~16.0 MMT',bSrc:'est',dYr:'2015',dAbs:'~15.4 MMT',dSrc:'est'},
+    '2018-19':{bYr:'2017',bAbs:'~16.8 MMT',bSrc:'est',dYr:'2018',dAbs:'~16.6 MMT',dSrc:'est'},
+    '2023-24':{bYr:'2022',bAbs:'17.4 MMT',bSrc:'rep',dYr:'2023',dAbs:'~16.9 MMT',dSrc:'est'},
+  },
+};
+
+const CLS = { neg:{badge:'b-neg',chip:'wx-heat',label:'NEGATIVE',color:'var(--red)'},
+              pos:{badge:'b-pos',chip:'wx-good',label:'POSITIVE',color:'var(--green)'},
+              mix:{badge:'b-mix',chip:'wx-drought',label:'MIXED',color:'var(--yellow)'} };
+const CHIP_CLS = { neg:'b-neg', pos:'b-pos', mix:'b-mix' };
+const CHIP_BG  = { neg:'background:rgba(239,68,68,.15);color:#fca5a5', pos:'background:rgba(34,197,94,.15);color:#86efac', mix:'background:rgba(234,179,8,.15);color:#fde047' };
+const WXCLS = { drought:'wx-drought', rain:'wx-rain', heat:'wx-heat', disease:'wx-disease', good:'wx-good' };
+const WXIC  = { drought:'☀️', rain:'🌧️', heat:'🔥', disease:'🦠', good:'🌱' };
+// Critical crop-calendar windows per commodity (months are 0-indexed)
+// risk:'dry' → alert when index < threshold; risk:'wet' → alert when index > threshold
+const CROP_WINDOWS={
+  cocoa:[
+    {months:[6,7],    period:'Jul–Aug', risk:'wet', threshold:115, label:'Disease window — excess rain spreads Black-pod & swollen-shoot virus'},
+    {months:[11,0,1], period:'Dec–Feb', risk:'dry', threshold:85,  label:'Harmattan drought window — dry, dusty wind damages pod development & mid-crop'}
+  ],
+  palmoil:[
+    {months:[6,7,8],  period:'Jul–Sep', risk:'dry', threshold:85, label:'FFB yield-stress onset — drought suppresses fruit-bunch output (9–18 mo lag into 2027)'}
+  ],
+  sugar:[
+    {months:[5,6,7,8],period:'Jun–Sep', risk:'dry', threshold:85, label:'South Asian monsoon — 75% of India\'s annual rainfall; drought = cane failure'}
+  ],
+  coffee:[
+    {months:[5,6,7],  period:'Jun–Aug', risk:'dry', threshold:85, label:'Robusta main wet season — sustained rain needed for canopy & cherry development'},
+    {months:[8,9,10], period:'Sep–Nov', risk:'dry', threshold:85, label:'Robusta flowering window — dry spell here cuts the following harvest'}
+  ],
+  bananas:[
+    {months:[0,1,2,3],period:'Jan–Apr', risk:'wet', threshold:115, label:'Ecuador flood season — excess rain disrupts harvest & spreads Black Sigatoka'}
+  ]
+};
+
+// ════════════════════════════════════════════════════════════════════
+//  COMPUTE LAYER — all quantitative work happens here, in deterministic JS.
+//  Nothing below is hand-typed: charts, tiles, conviction and the AI
+//  dossier all read from STATS[k]. The AI is explicitly told NOT to do
+//  its own arithmetic — it may only cite the numbers computed here.
+// ════════════════════════════════════════════════════════════════════
+const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
+
+// YoY % deviation for one event. If real {prod, base} are supplied, the %
+// is COMPUTED (prod/base-1); otherwise the directional 'dev' estimate is used.
+function evDev(ev){
+  if(!ev) return 0;
+  if(ev.prod!=null && ev.base!=null) return (ev.prod/ev.base-1)*100;
+  return ev.dev;
+}
+
+// Descriptive stats over an event series. Pass evts explicitly for non-primary outcomes.
+function computeStats(c, evts){
+  const ev_=evts||c.events;
+  const rows=EVENTS.map(e=>{ const ev=ev_[e]; return {e, dev:evDev(ev), src:ev?ev.src:'est'}; });
+  const devs=rows.map(r=>r.dev), n=devs.length;
+  const mean=devs.reduce((a,b)=>a+b,0)/n;
+  const variance=devs.reduce((a,b)=>a+(b-mean)**2,0)/n;
+  const stdev=Math.sqrt(variance);
+  const min=Math.min(...devs), max=Math.max(...devs);
+  const sdv=SUPER_EVENTS.map(e=>evDev(ev_[e]));
+  const superMean=sdv.reduce((a,b)=>a+b,0)/sdv.length;
+  const declineRate=devs.filter(d=>d<0).length/n;
+  const riseRate=devs.filter(d=>d>0).length/n;
+  const consistency=Math.max(declineRate,riseRate);
+  const stu = c.supply
+    ? (c.supply.stu != null ? c.supply.stu
+       : (c.supply.stocks!=null && c.supply.use!=null ? c.supply.stocks/c.supply.use : null))
+    : null;
+  const anyEst=rows.some(r=>r.src!=='rep');
+  return {rows,n,mean,stdev,min,max,superMean,declineRate,riseRate,consistency,stu,anyEst};
+}
+
+// ── CONVICTION — derived, not hand-set ──────────────────────────────
+//  Scores confidence in the DIRECTION of the 2026 supply impact:
+//    consistencyN (0–1): one-sidedness of the historical record = (consistency-0.5)/0.5
+//    magnitudeN   (0–1): typical impact size                    = min(|mean|/8, 1)   (8% ≈ large)
+//    tightnessN   (0–1): if stocks-to-use known, a tighter buffer raises conviction the shock bites;
+//                        unknown → 0.5 neutral                  = clamp((0.40-stu)/0.30, 0, 1)
+//    score = 0.55*consistencyN + 0.30*magnitudeN + 0.15*tightnessN
+//    bands: ≥0.70 HIGH · ≥0.50 MEDIUM-HIGH · ≥0.35 MEDIUM · ≥0.20 LOW-MEDIUM · else LOW
+//  NOTE: this is confidence in the signal's *consistency & size*, not a promise of 2026 magnitude.
+function computeConviction(s){
+  const consistencyN=clamp((s.consistency-0.5)/0.5,0,1);
+  const magnitudeN=clamp(Math.abs(s.mean)/8,0,1);
+  const tightnessN = s.stu==null ? 0.5 : clamp((0.40-s.stu)/0.30,0,1);
+  const score=0.55*consistencyN+0.30*magnitudeN+0.15*tightnessN;
+  const label = score>=0.70?'HIGH':score>=0.50?'MEDIUM-HIGH':score>=0.35?'MEDIUM':score>=0.20?'LOW-MEDIUM':'LOW';
+  return {score,label,consistencyN,magnitudeN,tightnessN};
+}
+
+// Build STATS (primary/volume outcome) and OSTATS (all outcomes).
+const STATS={};
+Object.keys(C).forEach(k=>{ const s=computeStats(C[k]); s.conv=computeConviction(s); STATS[k]=s; });
+
+const OSTATS={};
+Object.keys(C).forEach(k=>{
+  OSTATS[k]={};
+  Object.keys(C[k].outcomes).forEach(ok=>{
+    const s=computeStats(C[k],C[k].outcomes[ok].events); s.conv=computeConviction(s); OSTATS[k][ok]=s;
+  });
+});
+
+// Formatting helpers
+const pct=(x,dp=1)=>(x>=0?'+':'')+x.toFixed(dp)+'%';
+const estMark=cond=>cond?'<span class="est-star" title="Includes directional estimates not yet sourced to ICCO/USDA — see chart">*</span>':'';
+
+let current=null, charts={};
+const currentOutcome={};
+// 30-yr monthly precipitation normals (mm) for each commodity's key growing region
+// Derived from WorldClim / CRU TS climatological data for the geo coordinates in C[k].geo
+const PRECIP_NORMALS={
+  cocoa:   [25,55,105,135,160,185,105,65,130,160,95,30],   // Yamoussoukro, CIV
+  palmoil: [200,175,195,215,190,165,155,165,190,225,230,225], // Pekanbaru, Sumatra
+  sugar:   [5,5,8,15,30,165,365,310,210,65,20,10],          // Kolhapur, Maharashtra
+  coffee:  [10,15,35,110,220,260,285,275,270,175,60,20],    // Buôn Ma Thuột, Vietnam
+  bananas: [195,250,290,200,45,15,10,10,10,15,25,65]        // Guayaquil, Ecuador
+};
+function getOutcome(k){ return currentOutcome[k]||Object.keys(C[k].outcomes)[0]; }
+function setOutcome(k,ok){ currentOutcome[k]=ok; const sy=window.scrollY; render(); requestAnimationFrame(()=>window.scrollTo(0,sy)); }
+
+// ════════════════════════════════════════════════════════════════════
+//  LIVE DATA LAYER — three confirmed-working sources:
+//  1. supply-data.json  : local WASDE/ICCO stocks-to-use (all crops)
+//  2. World Bank API    : world cereal production trend (wheat/corn/rice)
+//  3. NOAA CPC proxy    : latest ONI reading (via serve.ps1)
+//  Cached in sessionStorage 1 hr. Click 📡 to force-refresh.
+// ════════════════════════════════════════════════════════════════════
+const LIVE = { data:{}, oni:null, supply:null, status:{}, fetchedAt:null };
+
+// ── PIPELINE CSV LOADER ──────────────────────────────────────────────────────
+// Tries to load real CSV output from /pipelines/data/ (produced by cocoa_pipeline.py
+// and palm_pipeline.py). Silently skips any file that doesn't exist yet.
+// When a CSV is present, overrides the static trajectory arrays with real sourced data.
+
+function parseCsv(text){
+  const lines=text.trim().split('\n');
+  if(!lines.length) return [];
+  const hdrs=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+  return lines.slice(1).filter(l=>l.trim()).map(line=>{
+    const vals=[]; let cur='', inQ=false;
+    for(const ch of line+','){
+      if(ch==='"') inQ=!inQ;
+      else if(ch===','&&!inQ){vals.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    const o={}; hdrs.forEach((h,i)=>o[h]=(vals[i]||'').replace(/"/g,'').trim()); return o;
+  });
+}
+
+function aggByYear(rows, yearCol, valCol, provenanceCol){
+  const m={};
+  rows.forEach(r=>{
+    const yr=+r[yearCol], v=+r[valCol];
+    if(isNaN(yr)||isNaN(v)||v<=0) return;
+    if(!m[yr]) m[yr]={val:0,est:false,src:''};
+    m[yr].val+=v;
+    if((r[provenanceCol]||'').startsWith('ESTIMATED')) m[yr].est=true;
+    if(!m[yr].src) m[yr].src=(r[provenanceCol]||'').slice(0,80);
+  });
+  return m;
+}
+
+function trajFromMap(byYear,{minYear=2019,fmtAbs=v=>v.toFixed(1),csvName='pipeline CSV'}={}){
+  const yrs=Object.keys(byYear).map(Number).sort((a,b)=>a-b);
+  const out=[];
+  for(let i=1;i<yrs.length;i++){
+    const yr=yrs[i], py=yrs[i-1];
+    if(yr<minYear) continue;
+    const cur=byYear[yr], prev=byYear[py];
+    if(!cur?.val||!prev?.val) continue;
+    const yoy=((cur.val-prev.val)/Math.abs(prev.val))*100;
+    out.push({
+      yr:String(yr),
+      yoy:+yoy.toFixed(1),
+      abs:fmtAbs(cur.val),
+      src:cur.est?'est':'rep',
+      note:cur.est?`ESTIMATED BY CLAUDE — pipeline gap-fill for ${yr}`:`SOURCE: ${cur.src||csvName}`
+    });
+  }
+  return out;
+}
+
+// Merge pipeline entries into an existing trajectory. Pipeline wins for covered years;
+// years only in the existing array (e.g. 2025 ICCO, pre-2005 estimates) are preserved.
+function mergeTraj(existing, pipeline){
+  const byYr={};
+  (existing||[]).forEach(e=>byYr[e.yr]=e);
+  pipeline.forEach(e=>byYr[e.yr]=e);
+  return Object.values(byYr).sort((a,b)=>+a.yr-(+b.yr));
+}
+
+async function loadPipelineCsvs(){
+  const base='/pipelines/data/';
+  const get=async f=>{try{const r=await fetch(base+f);return r.ok?parseCsv(await r.text()):null;}catch(e){return null;}};
+  let changed=false;
+
+  // ── cocoa: production (sum all focus countries by calendar year)
+  const cp=await get('cocoa_production_2005_2024.csv');
+  if(cp){
+    const m=aggByYear(cp,'year','production_tonnes','provenance');
+    const t=trajFromMap(m,{minYear:2005,fmtAbs:v=>(v/1000).toFixed(0)+' kt',csvName:'OWID/FAO · cocoa_production_2005_2024.csv'});
+    if(t.length>=3){C.cocoa.outcomes.volume.trajectory=mergeTraj(C.cocoa.outcomes.volume.trajectory,t);changed=true;}
+  }
+
+  // ── cocoa: yield (average kg/ha across focus countries)
+  const cy=await get('cocoa_yield_2005_2024.csv');
+  if(cy){
+    const raw={};
+    cy.forEach(r=>{
+      const yr=+r.year,v=+r.yield_tonnes_per_ha;
+      if(isNaN(yr)||isNaN(v)||v<=0) return;
+      if(!raw[yr]) raw[yr]={vals:[],est:false,src:''};
+      raw[yr].vals.push(v);
+      if((r.provenance||'').startsWith('ESTIMATED')) raw[yr].est=true;
+      if(!raw[yr].src) raw[yr].src=(r.provenance||'').slice(0,80);
+    });
+    const m={};
+    Object.entries(raw).forEach(([yr,d])=>m[yr]={val:d.vals.reduce((a,b)=>a+b,0)/d.vals.length,est:d.est,src:d.src});
+    const t=trajFromMap(m,{minYear:2005,fmtAbs:v=>(v*1000).toFixed(0)+' kg/ha',csvName:'OWID/FAO · cocoa_yield_2005_2024.csv'});
+    if(t.length>=3){C.cocoa.outcomes.yield.trajectory=mergeTraj(C.cocoa.outcomes.yield.trajectory,t);changed=true;}
+  }
+
+  // ── palm: CPO production (sum all countries)
+  const pp=await get('palm_cpo_production_2005_2026.csv');
+  if(pp){
+    const m=aggByYear(pp,'year','production_1000mt','provenance');
+    const t=trajFromMap(m,{minYear:2005,fmtAbs:v=>(v/1000).toFixed(1)+' MMT',csvName:'USDA FAS PSD · palm_cpo_production_2005_2026.csv'});
+    if(t.length>=3){C.palmoil.outcomes.volume.trajectory=mergeTraj(C.palmoil.outcomes.volume.trajectory,t);changed=true;}
+  }
+
+  // ── palm: yield — Malaysia as representative
+  const py=await get('palm_yield_2005_2026.csv');
+  if(py){
+    const myRows=py.filter(r=>r.country==='Malaysia');
+    const m={}; myRows.forEach(r=>{
+      const yr=+r.year,v=+r.yield_mt_per_ha;
+      if(isNaN(yr)||isNaN(v)||v<=0) return;
+      m[yr]={val:v,est:(r.provenance||'').startsWith('ESTIMATED'),src:(r.provenance||'').slice(0,80)};
+    });
+    const t=trajFromMap(m,{minYear:2005,fmtAbs:v=>v.toFixed(2)+' t FFB/ha',csvName:'MPOB · palm_yield_2005_2026.csv'});
+    if(t.length>=3){C.palmoil.outcomes.yield.trajectory=mergeTraj(C.palmoil.outcomes.yield.trajectory,t);changed=true;}
+  }
+
+  // ── palm: OER (direct annual series)
+  const po=await get('palm_oer_annual_malaysia_2010_2025.csv');
+  if(po){
+    const m={}; po.forEach(r=>{
+      const yr=+r.year,v=+r.oer_pct;
+      if(isNaN(yr)||isNaN(v)||v<=0) return;
+      m[yr]={val:v,est:(r.provenance||'').startsWith('ESTIMATED'),src:(r.provenance||'').slice(0,80)};
+    });
+    const t=trajFromMap(m,{minYear:2010,fmtAbs:v=>v.toFixed(2)+'%',csvName:'MPOB Annual Overview · palm_oer_annual_malaysia_2010_2025.csv'});
+    if(t.length>=3){C.palmoil.outcomes.extraction.trajectory=mergeTraj(C.palmoil.outcomes.extraction.trajectory,t);changed=true;}
+  }
+
+  if(changed&&current!==null) render();
+}
+
+async function fetchLocalSupply(){
+  // Local static file — always works when running via serve.ps1
+  const r=await fetch('/supply-data.json');
+  if(!r.ok) throw new Error('supply-data.json '+r.status);
+  return r.json();
+}
+
+async function fetchONI(){
+  // Routes via serve.ps1 proxy — returns pre-parsed JSON
+  const r=await fetch('/proxy/oni');
+  if(!r.ok) throw new Error('ONI proxy '+r.status);
+  return r.json();
+}
+
+async function fetchMonthly2026(){
+  const today=new Date();
+  const endDate=today.toISOString().slice(0,10);
+  const curMonth=today.getMonth(); // 0-indexed; months beyond this are future (null)
+  const MNAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DAYS_IN=[31,28,31,30,31,30,31,31,30,31,30,31]; // 2026 is not a leap year
+  await Promise.allSettled(Object.keys(C).map(async k=>{
+    const c=C[k];
+    if(!c.geo||!PRECIP_NORMALS[k]) return;
+    try{
+      const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${c.geo.lat}&longitude=${c.geo.lon}`+
+        `&start_date=2026-01-01&end_date=${endDate}&daily=precipitation_sum&timezone=auto`;
+      const r=await fetch(url); if(!r.ok) return;
+      const d=await r.json();
+      const monthly={};
+      (d.daily.time||[]).forEach((dt,i)=>{
+        const mi=parseInt(dt.slice(5,7))-1;
+        const p=+(d.daily.precipitation_sum[i])||0;
+        if(!monthly[mi]) monthly[mi]={total:0,days:0};
+        monthly[mi].total+=p; monthly[mi].days++;
+      });
+      const normals=PRECIP_NORMALS[k];
+      const vals=MNAMES.map((_,mi)=>{
+        if(mi>curMonth) return null;
+        const m=monthly[mi]; if(!m||!normals[mi]) return null;
+        // Annualise partial months so the index is comparable to the full-month normal
+        const ann=mi===curMonth?(m.total/m.days*DAYS_IN[mi]):m.total;
+        return Math.round(ann/normals[mi]*100);
+      });
+      const trendData={labels:MNAMES,vals,src:'Open-Meteo archive',isRainfall:true};
+      c.trendIdx=trendData;
+      LIVE.data[k]={...(LIVE.data[k]||{}),monthly2026:trendData};
+      LIVE.status[k]='ok';
+    }catch(e){}
+  }));
+}
+
+function applySupplyData(supplyJson){
+  Object.keys(C).forEach(k=>{
+    const d=supplyJson[k]; if(!d||d.stu==null) return;
+    C[k].supply={stu:d.stu,stocks:null,use:null,src:d.src,marketYear:d.marketYear||null};
+    const s=computeStats(C[k]); s.conv=computeConviction(s); STATS[k]=s;
+    // Recompute conviction for all outcomes (stu feeds into tightnessN)
+    if(OSTATS[k]) Object.keys(C[k].outcomes).forEach(ok=>{
+      const os=computeStats(C[k],C[k].outcomes[ok].events); os.conv=computeConviction(os); OSTATS[k][ok]=os;
+    });
+    LIVE.status[k]='ok';
+  });
+}
+
+
+function updateLiveBadge(txt,col){
+  const el=document.getElementById('liveDataStatus');
+  if(el){el.textContent=txt;el.style.color=col||'var(--accent2)';}
+}
+
+function updateONIPill(oni){
+  const el=document.getElementById('oniLabel'); if(!el) return;
+  el.textContent=`2026 El Niño — ONI ${oni.val>=0?'+':''}${oni.val.toFixed(1)}° (${oni.season} ${oni.year}, NOAA)`;
+}
+
+async function fetchAllLiveData(force){
+  // Always load pipeline CSVs — local files, fast, must not be skipped by cache
+  loadPipelineCsvs().catch(()=>{});
+
+  // Try sessionStorage cache first
+  if(!force){
+    try{
+      const raw=sessionStorage.getItem('en_live_v3');
+      if(raw){
+        const {ts,data,oni,supply}=JSON.parse(raw);
+        if(Date.now()-ts<3600000){
+          Object.assign(LIVE.data,data); LIVE.oni=oni; LIVE.supply=supply;
+          if(supply) applySupplyData(supply);
+          Object.keys(C).forEach(k=>{ if(data[k]?.monthly2026&&C[k]){ C[k].trendIdx=data[k].monthly2026; LIVE.status[k]='ok'; } });
+          LIVE.fetchedAt=new Date(ts);
+          const ok=Object.values(LIVE.status).filter(s=>s==='ok').length;
+          updateLiveBadge(`Data · ${ok}/${Object.keys(C).length} · ${new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`,'var(--green)');
+          if(oni) updateONIPill(oni);
+          if(current) render();
+          return;
+        }
+      }
+    }catch(e){}
+  }
+
+  updateLiveBadge('Fetching…','var(--yellow)');
+
+  // Run all sources concurrently; each fails silently
+  const [supplyResult] = await Promise.allSettled([
+    fetchLocalSupply(),
+    fetchONI().then(d=>{LIVE.oni=d;updateONIPill(d);}).catch(()=>{}),
+    fetchMonthly2026().catch(()=>{})
+  ]);
+
+  if(supplyResult.status==='fulfilled'){
+    LIVE.supply=supplyResult.value;
+    applySupplyData(supplyResult.value);
+  }
+
+  LIVE.fetchedAt=new Date();
+  try{
+    sessionStorage.setItem('en_live_v3',JSON.stringify({ts:Date.now(),data:LIVE.data,oni:LIVE.oni,supply:LIVE.supply}));
+  }catch(e){}
+
+  const ok=Object.values(LIVE.status).filter(s=>s==='ok').length;
+  const total=Object.keys(C).length;
+  const oniStr=LIVE.oni?` · ONI ${LIVE.oni.val>=0?'+':''}${LIVE.oni.val.toFixed(1)}°`:'';
+  updateLiveBadge(`Data · ${ok}/${total}${oniStr} · ${LIVE.fetchedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`,
+                  ok>0?'var(--green)':'var(--yellow)');
+  if(current) render(); else render();
+}
+
+// ════════════ AI CONFIG ════════════
+const MODELS = { claude:[['claude-sonnet-4-6','Claude Sonnet 4.6 (fast)'],['claude-opus-4-8','Claude Opus 4.8 (deep)']],
+                 gemini:[['gemini-2.0-flash','Gemini 2.0 Flash'],['gemini-1.5-pro','Gemini 1.5 Pro']] };
+function toggleConfig(){ document.getElementById('aiConfig').classList.toggle('open'); }
+function setProvider(p){
+  sessionStorage.setItem('en_prov',p);
+  document.querySelectorAll('#provSeg button').forEach(b=>b.classList.toggle('on',b.dataset.prov===p));
+  document.getElementById('claudeKeyField').style.display = p==='claude'?'block':'none';
+  document.getElementById('geminiKeyField').style.display = p==='gemini'?'block':'none';
+  const sel=document.getElementById('modelSel'); sel.innerHTML='';
+  MODELS[p].forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); });
+  const savedM=sessionStorage.getItem('en_model_'+p); if(savedM) sel.value=savedM;
+  sel.onchange=()=>sessionStorage.setItem('en_model_'+p,sel.value);
+  refreshAiStatus();
+}
+function saveKeys(){
+  sessionStorage.setItem('en_claudeKey',document.getElementById('claudeKey').value.trim());
+  sessionStorage.setItem('en_geminiKey',document.getElementById('geminiKey').value.trim());
+  refreshAiStatus();
+}
+function refreshAiStatus(){
+  const p=sessionStorage.getItem('en_prov')||'claude';
+  const k=p==='claude'?sessionStorage.getItem('en_claudeKey'):sessionStorage.getItem('en_geminiKey');
+  const el=document.getElementById('aiStatus');
+  if(k){ el.textContent='AI: '+(p==='claude'?'Claude':'Gemini')+' ready'; el.style.color='var(--green)'; }
+  else { el.textContent='AI: add '+(p==='claude'?'Claude':'Gemini')+' key'; el.style.color='var(--faint)'; }
+}
+function getProv(){ return sessionStorage.getItem('en_prov')||'claude'; }
+function getModel(){ const p=getProv(); return sessionStorage.getItem('en_model_'+p)||MODELS[p][0][0]; }
+function getKey(){ const p=getProv(); return (p==='claude'?sessionStorage.getItem('en_claudeKey'):sessionStorage.getItem('en_geminiKey'))||''; }
+
+async function callAI(prompt){
+  const p=getProv(), model=getModel(), key=getKey();
+  if(p==='claude'){
+    const r=await fetch('https://api.anthropic.com/v1/messages',{ method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model,max_tokens:1800,messages:[{role:'user',content:prompt}]}) });
+    if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||('Claude API '+r.status)); }
+    const d=await r.json(); return d.content[0].text;
+  } else {
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:1800}}) });
+    if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||('Gemini API '+r.status)); }
+    const d=await r.json(); return d.candidates[0].content.parts[0].text;
+  }
+}
+
+function buildContext(k){
+  const c=C[k], s=STATS[k];
+  // All figures below are PRE-COMPUTED in JS. The model must reuse them verbatim, not recompute.
+  return `COMMODITY DOSSIER — ${c.name}
+Producing regions: ${c.regions}
+El Niño impact type: ${CLS[c.cls].label}. Primary weather driver(s): ${c.wx.map(w=>w.l).join('; ')}.
+Mechanism: ${c.mech.replace(/<[^>]+>/g,'')}
+
+PRE-COMPUTED STATISTICS (production/yield % deviation vs prior season — do not recompute):
+- Per-event with El Niño onset (NOAA CPC): ${s.rows.map(r=>{const m=EL_NINO_META[r.e]||{};return `${r.e} (onset ${m.onset||'?'}, peak ${m.peak||'?'}): ${pct(r.dev)} [${r.src==='rep'?'reported':'estimate'}]`;}).join('; ')}
+- Primary 2026 analog: 2023-24 (onset Jun 2023, peak Dec 2023, +2.1°C ONI) — most recent strong event; use as primary benchmark for 2026 scenario-building.
+- Mean impact (all 6 events): ${pct(s.mean)}
+- Super-event mean (2014–16): ${pct(s.superMean)}
+- Std deviation (σ): ${s.stdev.toFixed(1)} pts;  range: ${pct(s.min)} to ${pct(s.max)}
+- Events with production / yield decline: ${(s.declineRate*100).toFixed(0)}% | Events with gain: ${(s.riseRate*100).toFixed(0)}% | Flat / near-zero: ${((1-s.declineRate-s.riseRate)*100).toFixed(0)}%
+- Stocks-to-use: ${s.stu==null?'not available':(s.stu*100).toFixed(1)+'%'}${s.stu!=null&&C[current]?.supply?.marketYear?' ('+C[current].supply.marketYear+')':''}
+- Derived conviction in impact DIRECTION: ${s.conv.label} (score ${s.conv.score.toFixed(2)} from consistency/magnitude/buffer)
+Data provenance: figures marked [estimate] are directional, pending hard ICCO/USDA extraction.
+
+Super El Niño note: ${c.superNote}
+Recent harvest verdict: ${c.verdict}. ${c.verdictNote}
+House 2026 view: ${c.predict.replace(/<[^>]+>/g,'')} (direction ${c.dir}).
+${(()=>{
+  const td=c.trendIdx;
+  if(!td?.isRainfall) return '';
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const actual=td.vals.map((v,i)=>v!=null?`${MN[i]}:${v}`:null).filter(Boolean);
+  const dry=td.vals.map((v,i)=>v!=null&&v<85?`${MN[i]}(${v})`:null).filter(Boolean);
+  const wet=td.vals.map((v,i)=>v!=null&&v>115?`${MN[i]}(${v})`:null).filter(Boolean);
+  const filled=td.vals.filter(v=>v!=null);
+  const avg=filled.length?Math.round(filled.reduce((a,b)=>a+b,0)/filled.length):null;
+  const bias=avg==null?'no data yet':avg>110?'WET bias (above-normal rainfall YTD)':avg<90?'DRY bias (below-normal rainfall YTD)':'near-normal YTD';
+  return `LIVE 2026 RAINFALL — ${c.geo.place} (index: 100 = 30-yr monthly normal, source: Open-Meteo daily archive):
+Monthly index: ${actual.join(', ')} | Jul–Dec: no data yet
+${dry.length?'Significantly dry months (<85): '+dry.join(', '):'No significantly dry months yet (Jan–present)'}
+${wet.length?'Significantly wet months (>115): '+wet.join(', '):'No significantly wet months yet (Jan–present)'}
+YTD average index: ${avg??'n/a'} — ${bias}.
+INSTRUCTION: incorporate these current-season rainfall figures into your 2026 scenario. Cite the specific anomalous months and explain what they mean for crop development given the mechanism described above.`;
+})()}
+Primary sources: ICCO annual reports, USDA WASDE, FAO FAOSTAT, India IMD, NOAA CPC, IRI Columbia — see dashboard footer for full list.`;
+}
+
+function buildFactCheckPrompt(ctx, draft){
+  return `You are a meticulous fact-checker for a hedge fund research team. Your ONLY job is to verify that every numerical claim in the DRAFT ANALYSIS below exactly matches the VERIFIED DOSSIER. Do not evaluate writing quality or add new information.
+
+VERIFIED DOSSIER (ground truth — all figures are pre-computed from primary sources):
+${ctx}
+
+DRAFT ANALYSIS TO FACT-CHECK:
+${draft}
+
+TASK:
+1. Extract every specific number, percentage, ratio, or statistical claim from the draft.
+2. For each, cross-reference it against the dossier.
+3. Flag any discrepancy, invented figure, or claim that has no basis in the dossier.
+4. If a claim is directionally consistent but uses a slightly different phrasing (e.g. "roughly −8%" when dossier says mean=−7.8%), note it as [APPROXIMATE - ACCEPTABLE].
+
+Respond ONLY with valid JSON in this exact schema (no markdown fences, no extra text):
+{"pass":true,"issues":[]}
+— OR —
+{"pass":false,"issues":[{"claim":"exact text from draft","dossier":"what dossier actually says or MISSING if absent","severity":"critical|minor"}]}
+
+Severity rules: "critical" = wrong number that would mislead a trader; "minor" = rounding / paraphrase that is directionally correct.`;
+}
+
+async function runAI(k, mode, customQ){
+  const out=document.getElementById('aiOut');
+  const fc=document.getElementById('fcResult');
+  if(!getKey()){ out.innerHTML=`<div class="alert alert-warn">⚠️ Add your ${getProv()==='claude'?'Claude':'Gemini'} API key in ⚙️ AI Setup (top-right), then try again.</div>`; document.getElementById('aiConfig').classList.add('open'); return; }
+  document.querySelectorAll('.btn-ai').forEach(b=>b.disabled=true);
+  fc.innerHTML='';
+  out.innerHTML=`<div style="color:var(--muted)"><span class="spinner"></span> &nbsp;${getProv()==='claude'?'Claude':'Gemini'} (${getModel()}) is analysing ${C[k].name}…</div>`;
+  const ctx=buildContext(k);
+  let prompt;
+  const RULES=`STRICT RULES:\n- Cite ONLY pre-computed numbers from the dossier (mean, σ, range, decline rate, super-event mean, stocks-to-use, conviction). Do not invent or recompute any figure.\n- If a number is missing (e.g. stocks-to-use "not available"), say so — do not estimate.\n- Production / supply / yield / weather logic only. Never cite price levels.\n- Mark figures as [estimate] when the dossier does.\n- For every historical event cited, state its onset month and year.`;
+  if(mode==='ask'){
+    prompt=`You are a senior commodity-supply analyst. Answer the question about ${C[k].name} below.\n\n${ctx}\n\n${RULES}\n\nQUESTION: ${customQ}\n\nBe concise, specific, and use markdown.`;
+  } else {
+    prompt=`You are a senior commodity-supply analyst at a hedge fund. Write a tight, data-first El Niño production note on ${C[k].name}. Report what the data shows — do not assume a direction.\n\n${ctx}\n\n${RULES}\n\nStructure (markdown headers):\n1. **Historical pattern** — open with 2023-24 (onset Jun 2023). For each event: state the production stat, then immediately name the specific weather driver that caused it (drought / excess rain / heat / disease — use the drivers listed in the dossier). Note sourced vs estimate. Close with mean, range, and decline rate.\n2. **2026 scenarios** — base / upside / downside with rough probabilities, anchored to the mean and σ. Reference live rainfall data if present in the dossier. Upside = supply-ample; downside = supply-tight.\n3. **Risks** — non-ENSO factors (policy, structural, disease, trade) that could amplify or offset the signal.\nNo boilerplate. Be direct.`;
+  }
+  try{
+    // ── Pass 1: generate analysis ──
+    const txt=await callAI(prompt);
+    out.innerHTML=marked.parse(txt);
+
+    // ── Pass 2: fact-check ──
+    fc.innerHTML=`<div class="fc-bar fc-checking"><span class="spinner"></span>&nbsp;<span class="fc-label">Fact-checking statistics against dossier…</span></div>`;
+    let fcResult;
+    try{
+      const fcRaw=await callAI(buildFactCheckPrompt(ctx, txt));
+      // Strip markdown fences if model wrapped anyway
+      const cleaned=fcRaw.replace(/^```[a-z]*\n?/,'').replace(/\n?```$/,'').trim();
+      fcResult=JSON.parse(cleaned);
+    } catch(pe){
+      fc.innerHTML=`<div class="fc-bar fc-skip"><span class="fc-label">⚠ Fact-check parse error — raw response logged to console.</span></div>`;
+      console.warn('Fact-check parse error:', pe);
+      document.querySelectorAll('.btn-ai').forEach(b=>b.disabled=false);
+      return;
+    }
+
+    if(fcResult.pass){
+      fc.innerHTML=`<div class="fc-bar fc-ok"><span class="fc-label">✅ All statistics verified against dossier</span></div>`;
+    } else {
+      const critical=fcResult.issues.filter(i=>i.severity==='critical');
+      const minor=fcResult.issues.filter(i=>i.severity==='minor');
+      const id='fc_'+k+'_'+Date.now();
+      const badge=critical.length>0
+        ? `⚠ ${critical.length} critical correction${critical.length>1?'s':''}`+( minor.length>0 ? ` + ${minor.length} minor` : '')
+        : `ℹ ${minor.length} minor note${minor.length>1?'s':''}`;
+      const cls=critical.length>0?'fc-warn':'fc-ok';
+      const rows=fcResult.issues.map(i=>`<li><b>[${i.severity.toUpperCase()}]</b> Draft said: "<em>${i.claim}</em>" — Dossier: ${i.dossier}</li>`).join('');
+      fc.innerHTML=`<div class="fc-bar ${cls}">
+        <span class="fc-label">${badge}</span>
+        <button class="fc-toggle" onclick="var d=document.getElementById('${id}');d.style.display=d.style.display==='none'?'block':'none'">Details</button>
+        <div class="fc-detail" id="${id}" style="display:none"><ul>${rows}</ul></div>
+      </div>`;
+    }
+  }
+  catch(e){ out.innerHTML=`<div class="alert alert-warn">⚠️ ${getProv()==='claude'?'Claude':'Gemini'} error: ${e.message}<br><br>If this is a CORS/browser block, try the other provider, or run the file through VS Code Live Server (not file://). Your built-in house view above does not require the API.</div>`; fc.innerHTML=''; }
+  finally{ document.querySelectorAll('.btn-ai').forEach(b=>b.disabled=false); }
+}
+
+// ════════════ SIDEBAR ════════════
+function renderSidebar(){
+  const sb=document.getElementById('sidebar');
+  sb.querySelectorAll('.cbtn, .home-btn').forEach(e=>e.remove());
+  const label=sb.querySelector('.side-label');
+  const home=document.createElement('button');
+  home.className='cbtn home-btn'+(current===null?' active':'');
+  home.innerHTML=`<span class="ic">📊</span><span class="nm">Overview</span>`;
+  home.onclick=()=>{current=null;renderSidebar();render();window.scrollTo(0,0);};
+  label.insertAdjacentElement('afterend',home);
+  let prev=home;
+  Object.entries(C).forEach(([k,c])=>{
+    const b=document.createElement('button');
+    b.className='cbtn'+(current===k?' active':'')+(c.locked?' locked':'');
+    b.innerHTML=`<span class="ic">${c.icon}</span><span class="nm">${c.name}</span><span class="pip" style="background:${CLS[c.cls].color}"></span>`;
+    b.onclick=()=>{current=k;renderSidebar();render();window.scrollTo(0,0);};
+    prev.insertAdjacentElement('afterend',b); prev=b;
+  });
+}
+
+// ════════════ RENDER ════════════
+function render(){ Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}}); charts={};
+  if(current===null) overview(); else detail(current); }
+
+function overview(){
+  const el=document.getElementById('content');
+  const neg=Object.values(C).filter(c=>c.cls==='neg').length;
+  const mix=Object.values(C).filter(c=>c.cls==='mix').length;
+  const pos=Object.values(C).filter(c=>c.cls==='pos').length;
+  // ENSO ladder marks (peak ONI °C) mapped onto 0..3 scale across track
+  const lad = v => Math.min(100, (v/3.0)*100);
+  el.innerHTML=`
+    <div class="panel panel-hero">
+      <div class="hero-top">
+        <span class="em">🌊</span>
+        <div>
+          <h2>2026 El Niño — Developing, with a super-event tail</h2>
+          <p>ENSO forecasts point to a significant El Niño emerging by mid-2026, strengthening through summer and peaking toward year-end. The base case is a moderate-to-strong event (like 2023–24); the upper tail implies a “super” event rivalling 2015–16. This agent maps the impact onto <strong>production and supply</strong> for ${Object.keys(C).length} key commodities — no price guesswork, just where the harvests are heading.</p>
+        </div>
+      </div>
+      <div class="ladder">
+        <div class="ladder-track">
+          <div class="ladder-seg" style="flex:0.5;background:#334155;color:#cbd5e1">Neutral &lt;0.5°</div>
+          <div class="ladder-seg" style="flex:0.5;background:#eab308">Conditions 0.5–1.0°</div>
+          <div class="ladder-seg" style="flex:1.2;background:#f97316">Moderate–Strong 1.0–2.0°</div>
+          <div class="ladder-seg" style="flex:0.8;background:#ef4444;color:#fff">Super 2.2°+</div>
+        </div>
+        <div class="ladder-marks">
+          <div class="mark" style="left:${lad(2.4)}%"><div class="ln"></div><div class="lb">’97–98 +2.4°</div></div>
+          <div class="mark" style="left:${lad(2.8)}%"><div class="ln"></div><div class="lb">’15–16 +2.8°</div></div>
+          <div class="mark" style="left:${lad(2.1)}%"><div class="ln"></div><div class="lb">’23–24 +2.1°</div></div>
+          <div class="mark now" style="left:${lad(1.5)}%"><div class="ln"></div><div class="lb">2026 base ~+1.5° (tail → super)</div></div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="lab">Negative for supply</div><div class="val" style="color:var(--red)">${neg}</div><div class="sub">Cocoa, Palm Oil, Coffee, Bananas</div></div>
+        <div class="stat"><div class="lab">Mixed / two-sided</div><div class="val" style="color:var(--yellow)">${mix}</div><div class="sub">Sugar</div></div>
+        <div class="stat"><div class="lab">Positive for supply</div><div class="val" style="color:var(--green)">${pos}</div><div class="sub">—</div></div>
+        <div class="stat"><div class="lab">Peak-impact window</div><div class="val" style="color:var(--accent2)">Q4 ’26</div><div class="sub">Effects extend into 2027</div></div>
+        <div class="stat"><div class="lab">Atlantic hurricanes</div><div class="val" style="color:var(--green)">~−40%</div><div class="sub">Intense storms in El Niño yrs</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-t"><span>📉</span> El Niño Sensitivity & Direction — ranked</div>
+      <div id="rankList"></div>
+      <div class="chart-cap">Bar length = sensitivity of production to El Niño. Colour = direction of the supply impact (red negative, green positive, yellow mixed). Click any row.</div>
+    </div>
+
+    <div class="panel">
+      <div class="section-t"><span>🔥</span> Outcomes heatmap — mean impact per metric</div>
+      <table class="heat-table" id="heatTable"></table>
+      <div class="chart-cap" style="margin-top:10px">Mean production/yield/quality deviation (YoY %) across all 6 El Niño events. Click any row to open that commodity. All values are directional estimates unless marked otherwise.</div>
+    </div>
+
+    <div class="panel">
+      <div class="section-t"><span>🗂️</span> Commodity dashboards</div>
+      <div class="ov-grid" id="ovGrid"></div>
+    </div>
+  `;
+  // ranking
+  const rl=document.getElementById('rankList');
+  Object.entries(C).sort((a,b)=>b[1].score-a[1].score).forEach(([k,c])=>{
+    const row=document.createElement('div'); row.className='rank-row'; row.onclick=()=>{current=k;renderSidebar();render();window.scrollTo(0,0);};
+    row.innerHTML=`<div class="rank-name"><span>${c.icon}</span> ${c.name}</div>
+      <div class="rank-bar"><div class="rank-fill" style="width:${c.score*100}%;background:${CLS[c.cls].color}"></div></div>
+      <div class="rank-dir" style="color:${c.dirColor}">${c.dir.replace(/ ↓+| ↑/,'')}</div>`;
+    rl.appendChild(row);
+  });
+  // heatmap table
+  const ht=document.getElementById('heatTable');
+  const sampleOutcomeKeys=k=>Object.keys(C[k].outcomes);
+  // header: 3 generic columns (all commodities have 3 outcomes)
+  ht.innerHTML=`<thead><tr>
+    <th>Commodity</th>
+    <th class="r" title="Primary production volume">Production Volume</th>
+    <th class="r" title="Yield or equivalent rate metric">Yield / Rate</th>
+    <th class="r" title="Quality or third metric (varies by commodity)">Quality / Other</th>
+  </tr></thead>`;
+  const tbody=document.createElement('tbody');
+  Object.entries(C).forEach(([k,c])=>{
+    const okeys=Object.keys(c.outcomes);
+    const cells=okeys.slice(0,3).map((ok,i)=>{
+      const mean=OSTATS[k]?.[ok]?.mean;
+      if(mean==null) return `<td></td>`;
+      const cls=mean>1?'hc-pos':mean<-1?'hc-neg':'hc-flat';
+      const tip=c.outcomes[ok].label;
+      return `<td style="text-align:center"><span class="hc ${cls}" title="${tip}">${pct(mean,1)}</span></td>`;
+    });
+    // pad to 3 if a commodity somehow has fewer
+    while(cells.length<3) cells.push('<td></td>');
+    const tr=document.createElement('tr');
+    tr.onclick=()=>{current=k;renderSidebar();render();window.scrollTo(0,0);};
+    tr.innerHTML=`<td style="font-weight:600;font-size:13px">${c.icon} ${c.name}</td>${cells.join('')}`;
+    tbody.appendChild(tr);
+  });
+  ht.appendChild(tbody);
+  // cards
+  const g=document.getElementById('ovGrid');
+  Object.entries(C).forEach(([k,c])=>{
+    const card=document.createElement('div'); card.className='ov-card'+(c.locked?' locked-card':''); if(!c.locked) card.onclick=()=>{current=k;renderSidebar();render();window.scrollTo(0,0);};
+    card.innerHTML=`
+      <div class="ov-head"><span class="ov-em">${c.icon}</span>
+        <span class="chip ${CHIP_CLS[c.cls]}" style="${CHIP_BG[c.cls]}">${CLS[c.cls].label}</span></div>
+      <div class="ov-name">${c.name}</div>
+      <div class="ov-reg">${c.regions}</div>
+      <div class="ov-driver">${c.driver}</div>
+      <div class="ov-foot"><span style="font-size:10.5px;color:var(--muted)">${c.verdict==='BUMPER'?'🟢 Bumper':c.verdict==='TROUGH'?'🔴 Trough':'🟡 Mixed'}</span>
+        <span class="d" style="color:${c.dirColor}">${c.dir} →</span></div>`;
+    g.appendChild(card);
+  });
+}
+
+function detail(k){
+  const c=C[k]; const el=document.getElementById('content');
+  const ok=getOutcome(k);
+  const s=OSTATS[k]?.[ok]||STATS[k];
+  const outObj=C[k].outcomes[ok];
+  const vcls = c.verdict==='BUMPER'?'v-bumper':c.verdict==='TROUGH'?'v-trough':'v-mixed';
+  const outcomeTabs=Object.entries(C[k].outcomes).map(([okey,ov])=>`<button class="otab${okey===ok?' active':''}" onclick="setOutcome('${k}','${okey}')">${ov.label}</button>`).join('');
+  el.innerHTML=`
+    ${c.locked?`<div class="locked-banner">🔒 <strong>Data source pending verification</strong> — Historical figures for this commodity are directional estimates only. A verified data pipeline has not yet been validated for this commodity. Treat all numbers below as indicative, not sourced, until this banner is removed.</div>`:''}
+    <div class="panel">
+      <div class="d-head">
+        <span class="d-em">${c.icon}</span>
+        <div style="flex:1">
+          <div class="d-name">${c.name}</div>
+          <div class="d-reg">Key producing regions — ${c.regions}</div>
+          <div class="badges">
+            <span class="badge ${CLS[c.cls].badge}">${CLS[c.cls].label} for supply</span>
+            <span class="badge b-info">2026: ${c.dir}</span>
+            <span class="badge b-conv" title="Computed: 0.55·consistency + 0.30·magnitude + 0.15·stocks-buffer = ${s.conv.score.toFixed(2)}">Conviction: ${s.conv.label} ⓘ</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost" onclick="current=null;renderSidebar();render();window.scrollTo(0,0)">← Overview</button>
+      </div>
+      <div style="margin-top:16px"><div class="section-t"><span>🌦️</span> Why it's affected — the El Niño mechanism</div>
+        <div class="mech">${c.mech}</div>
+        <div class="wx-tags">${c.wx.map(w=>`<span class="wx ${WXCLS[w.t]}">${WXIC[w.t]} ${w.l}</span>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-t"><span>⚡</span> Sensitivity drivers — ${outObj.label} in El Niño years</div>
+      <ul class="why-list">${(outObj.why||c.why).map(w=>`<li>${w}</li>`).join('')}</ul>
+    </div>
+
+    <div class="panel">
+      <div class="section-t"><span>📊</span> Annual production outcomes — all years</div>
+      <div class="otabs">${outcomeTabs}</div>
+      <div style="display:flex;gap:12px">
+        <div class="chart-wrap" style="height:320px;flex:1"><canvas id="chEvents"></canvas></div>
+        <div id="evHoverBox" class="ev-hover-box" style="justify-content:center;align-items:center"><span style="color:var(--muted);font-size:11px;text-align:center">Hover<br>a bar</span></div>
+      </div>
+      <div class="chart-cap">${outObj.label} — 2000 to 2025. <span style="color:#f59e0b;font-weight:700">Amber border = El Niño year</span> (all years in event span). <b>Solid bar = reported/sourced</b>; faded bar = Claude estimate. Cocoa: ICCO / Wells Fargo Securities Exhibit 9 (world total). Other commodities: trajectory data from named sources.</div>
+    </div>
+
+    <div class="panel">
+      <div class="section-t"><span>🔍</span> El Niño vs. other contributing factors — by event year</div>
+      <table class="conf-table">
+        <thead><tr>
+          <th>Event</th><th>ENSO type</th><th>Outcome (${outObj.unit})</th><th>Other known co-occurring factors</th>
+        </tr></thead>
+        <tbody>${EVENTS.map(e=>{
+          const row=OSTATS[k]?.[ok]?.rows?.find(r=>r.e===e)||{dev:0,src:'est'};
+          const devcls=row.dev>0.5?'hc-pos':row.dev<-0.5?'hc-neg':'hc-flat';
+          const cf=c.confounders?.[e];
+          return `<tr>
+            <td><span class="ev-yr">${e}</span></td>
+            <td><span class="ev-type">${ENSO_SEV[e]||'El Niño'}</span></td>
+            <td><span class="ev-dev ${devcls}">${pct(row.dev)}</span></td>
+            <td>${cf?`<span class="cf-text">${cf}</span>`:`<span class="cf-none">No major non-ENSO factors identified for this year</span>`}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+      <div class="chart-cap" style="margin-top:10px">Attribution is inherently uncertain — El Niño rarely acts alone. These co-occurring factors may have amplified, offset, or dominated the weather signal in a given year. Treat all event deviations as the net of multiple causes.</div>
+    </div>
+
+
+    ${(()=>{
+      const traj=outObj.trajectory;
+      if(!traj||!traj.length) return '';
+      const rows=traj.map(t=>{
+        const cls=t.yoy>0.5?'hc-pos':t.yoy<-0.5?'hc-neg':'hc-flat';
+        const pStr=t.yoy==null?'—':((t.yoy===0?'0.0':(t.yoy>0?'+':'')+t.yoy.toFixed(1))+'%');
+        return `<tr>
+          <td class="traj-yr">${t.yr}</td>
+          <td class="traj-pct"><span class="hc ${cls}">${pStr}</span></td>
+          <td class="traj-abs">${t.abs||'—'}</td>
+          <td class="traj-src"><span class="src-badge ${t.src==='rep'?'rep':'est'}">${t.src==='rep'?'SOURCED':'CLAUDE EST.'}</span><span class="traj-note">${t.note}</span></td>
+        </tr>`;
+      }).join('');
+      return `<div class="panel">
+        <details class="traj-details">
+          <summary class="section-t"><span>📅</span> Annual trajectory — ${outObj.label}
+            <span style="font-size:11px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:8px">${traj.length} years</span>
+          </summary>
+          <table class="traj-table" style="margin-top:10px">
+            <thead><tr><th>Year</th><th class="thr">YoY %</th><th>Level</th><th>Source / note</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div class="chart-cap" style="margin-top:10px"><span class="src-badge rep" style="vertical-align:middle">SOURCED</span> = named published report. &nbsp;<span class="src-badge est" style="vertical-align:middle">CLAUDE EST.</span> = directional model estimate — treat as indicative only. YoY % relative to prior year in same series.</div>
+        </details>
+      </div>`;
+    })()}
+
+    <div class="grid-2-1">
+      <div class="panel">
+        <div class="section-t"><span>📈</span> 2026 production outlook — monthly
+          <span id="trendSrcBadge"></span></div>
+        <div class="chart-wrap"><canvas id="chTrend"></canvas></div>
+        <div class="chart-cap" id="trendCap">Loading…</div>
+      </div>
+      <div class="panel">
+        <div class="section-t"><span>🧭</span> Recent harvest verdict</div>
+        <div class="verdict"><span class="verdict-badge ${vcls}">${c.verdict==='BUMPER'?'🟢 BUMPER':c.verdict==='TROUGH'?'🔴 TROUGH':'🟡 MIXED'}</span>
+          <span style="font-size:12.5px;color:#cdd8e3">${c.verdictNote}</span></div>
+        <div class="tile-grid" style="margin-top:14px">
+          ${Object.entries(c.tiles).map(([t,v])=>`<div class="tile"><div class="l">${t}</div><div class="v ${v.d==='up'?'up':v.d==='down'?'down':'flat'}">${v.v}</div><div class="n">${v.n}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    ${(()=>{
+      const wins=CROP_WINDOWS[k]; if(!wins) return '';
+      const vals=c.trendIdx?.isRainfall?c.trendIdx.vals:null;
+      const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const rows=wins.map(w=>{
+        const avail=vals?w.months.filter(m=>vals[m]!=null):[];
+        let status='ahead', detail='';
+        if(avail.length){
+          const avg=Math.round(avail.reduce((a,m)=>a+vals[m],0)/avail.length);
+          const monthStr=avail.map(m=>`${MN[m]}:${vals[m]}`).join(', ');
+          const dir=avg>110?'above normal':avg<90?'below normal':'near normal';
+          detail=`Avg index: ${avg} (${dir}) — ${monthStr}`;
+          if(w.risk==='dry') status=avg<w.threshold-15?'alert':avg<w.threshold?'watch':'ok';
+          else status=avg>w.threshold+15?'alert':avg>w.threshold?'watch':'ok';
+        } else {
+          detail=vals?`${w.period} — no data yet`:'Live rainfall not loaded';
+        }
+        const lbl=status==='alert'?'🔴 ALERT':status==='watch'?'🟡 WATCH':status==='ok'?'🟢 OK':'⏳ AHEAD';
+        return `<div class="cal-row">
+          <span class="cal-chip cs-${status}">${lbl}</span>
+          <div class="cal-detail"><div style="font-weight:600">${w.label}</div>
+            <div class="cal-months">${detail}</div></div></div>`;
+      }).join('');
+      const hasLive=vals&&vals.some(v=>v!=null);
+      return `<div class="panel">
+        <div class="section-t"><span>🌱</span> 2026 crop calendar risk${hasLive?'<span class="src-badge live" style="margin-left:8px;vertical-align:middle">LIVE</span>':''}
+        </div>${rows}
+        <div class="chart-cap" style="margin-top:10px">Status vs actual 2026 Open-Meteo rainfall. Alert = risk threshold already crossed this season. Ahead = window not yet reached. Index 100 = 30-yr monthly normal.</div>
+      </div>`;
+    })()}
+
+    <div class="predict">
+      <div class="pl">🎯 2026 El Niño production outlook — ${c.name}</div>
+      <div class="pc">${c.predict}</div>
+    </div>
+
+    <div class="panel ai-panel">
+      <div class="ai-h"><div class="ai-orb">🤖</div>
+        <div><div class="t">AI Agent — deep production analysis</div><div class="s">Grounded in the loaded ${c.name} dossier · powered by Claude / Gemini</div></div></div>
+      <div class="ai-actions">
+        <button class="btn btn-ai" onclick="runAI('${k}','full')">✨ Generate full supply analysis</button>
+        <span class="prov-hint" style="font-size:11.5px;color:var(--faint)">Set provider/key in ⚙️ AI Setup</span>
+      </div>
+      <div class="ask-row">
+        <input id="askInput" placeholder="Ask the agent about ${c.name}… e.g. 'How might the 2027 crop respond if monsoon rainfall is below normal?'" onkeydown="if(event.key==='Enter')runAI('${k}','ask',this.value)"/>
+        <button class="btn btn-ai" onclick="runAI('${k}','ask',document.getElementById('askInput').value)">Ask →</button>
+      </div>
+      <div class="ai-out" id="aiOut" style="margin-top:14px;color:var(--faint);font-size:12.5px">The house view above is always available offline. Click <b>Generate</b> for an extended, on-demand AI note, or ask a custom question.</div>
+      <div id="fcResult"></div>
+    </div>
+  `;
+  el.querySelector('.prov-hint').textContent='Using '+(getProv()==='claude'?'Claude':'Gemini')+' — change in ⚙️ AI Setup';
+
+  setTimeout(()=>{ chartEvents(c,k); chartTrend(c); },40);
+}
+
+// ════════════ CHARTS ════════════
+const axis={x:{grid:{color:'#1b232d'},ticks:{color:'#8b9bab',font:{size:10}}},y:{grid:{color:'#1b232d'},ticks:{color:'#8b9bab',font:{size:10}}}};
+const tip={backgroundColor:'#1b232d',borderColor:'#28323e',borderWidth:1,titleColor:'#e8eef4',bodyColor:'#8b9bab'};
+
+// Builds continuous 2000–2025 series. Trajectory entries override event entries for same year.
+// Multi-year El Niño events (e.g. 2014-16) mark ALL years in range as isElNino.
+function buildAnnualSeries(k, ok) {
+  const evRows = OSTATS[k]?.[ok]?.rows || STATS[k].rows;
+  const traj = C[k]?.outcomes?.[ok]?.trajectory || [];
+  function sortYr(s){
+    // Event keys like '2002-03' or '2014-16': plot at the END year (production impact year)
+    const em=(s||'').match(/^(\d{4})-(\d{2,4})$/);
+    if(em){const start=parseInt(em[1]),sfx=em[2];const end=sfx.length===4?parseInt(sfx):Math.floor(start/100)*100+parseInt(sfx);return end<=start?end+100:end;}
+    const m=(s||'').match(/(\d{4})/);return m?parseInt(m[1]):9999;
+  }
+  function parseAbsVal(s){
+    if(!s||s==='—') return null;
+    const n=parseFloat(s.replace(/[~,<>≈]/g,'').replace(/[^0-9.]/g,''));
+    return isNaN(n)?null:n;
+  }
+  function isElNinoYr(yr){
+    return EVENTS.some(e=>{
+      const parts=e.split('-'); const start=parseInt(parts[0]);
+      let end; if(parts[1].length<=2){ end=Math.floor(start/100)*100+parseInt(parts[1]); if(end<=start)end+=100; } else end=parseInt(parts[1]);
+      return yr>=start&&yr<=end;
+    });
+  }
+  const dataMap={};
+  evRows.forEach(r=>{
+    const sy=sortYr(r.e);
+    dataMap[sy]={label:String(sy),yoy:r.dev,absVal:null,abs:null,src:r.src,isElNino:true,
+      note:ENSO_SEV[r.e]?'El Niño '+ENSO_SEV[r.e]:'El Niño event'};
+  });
+  traj.forEach(t=>{
+    const sy=sortYr(t.yr);
+    if(dataMap[sy]&&dataMap[sy].src==='rep') return; // don't override sourced events
+    const av=t.absVal!=null?t.absVal:parseAbsVal(t.abs);
+    dataMap[sy]={label:t.yr,yoy:t.yoy,absVal:av,abs:t.abs||null,src:t.src,isElNino:isElNinoYr(sy),note:t.note||''};
+  });
+  const result=[];
+  for(let yr=2000;yr<=2025;yr++){
+    result.push(dataMap[yr]||{label:String(yr),yoy:null,absVal:null,abs:null,src:'none',isElNino:isElNinoYr(yr),note:''});
+  }
+  return result;
+}
+
+function chartEvents(c,k){
+  const ctx=document.getElementById('chEvents'); if(!ctx)return;
+  const ck=k||Object.keys(C).find(x=>C[x]===c);
+  const ok=getOutcome(ck);
+  const outLabel=C[ck]?.outcomes?.[ok]?.label||'Production';
+  const traj=C[ck]?.outcomes?.[ok]?.trajectory||[];
+  const series=buildAnnualSeries(ck,ok);
+  // Detect volume unit from first trajectory entry with an abs string
+  const firstAbs=(traj.find(t=>t.abs&&t.abs!=='—')||{}).abs||'';
+  const unitMatch=firstAbs.replace(/^[~\d,.\s]+/,'').trim();
+  const volUnit=unitMatch||'';
+  const hasAbs=false;
+  const labels=series.map(r=>r.label);
+  const vals=series.map(r=>hasAbs?r.absVal:r.yoy);
+  const bg=series.map(r=>{
+    if(r.absVal==null&&r.yoy==null) return 'rgba(100,100,100,0.0)';
+    const isUp=r.yoy!=null?r.yoy>=0:true;
+    const a=r.src==='rep'?0.82:r.src==='none'?0.0:0.28;
+    return isUp?`rgba(34,197,94,${a})`:`rgba(239,68,68,${a})`;
+  });
+  const borderColor=series.map(r=>r.isElNino?'#f59e0b':(r.yoy==null||r.yoy>=0?'rgba(34,197,94,.4)':'rgba(239,68,68,.4)'));
+  const borderWidth=series.map(r=>r.isElNino?2.5:1);
+  function updateHoverBox(r){
+    const box=document.getElementById('evHoverBox'); if(!box) return;
+    const yr=parseInt(r.label);
+    const evKey=EVENTS.find(e=>{
+      const parts=e.split('-'),start=parseInt(parts[0]);
+      let end=parts[1].length<=2?Math.floor(start/100)*100+parseInt(parts[1]):parseInt(parts[1]);
+      if(end<=start)end+=100; return yr>=start&&yr<=end;
+    });
+    const sev=evKey?ENSO_SEV[evKey]:null;
+    const sevCls=sev==='Super El Niño'?'sev-super':sev==='El Niño'?'sev-elnino':sev?'sev-mild':'';
+    const yoyStr=r.yoy==null?'—':(r.yoy>0?'+':'')+r.yoy.toFixed(1)+'%';
+    const yoyColor=r.yoy==null?'var(--muted)':r.yoy>=0?'#22c55e':'#f87171';
+    box.style.justifyContent='flex-start'; box.style.alignItems='stretch';
+    box.innerHTML=`<div class="ehb-label">Year</div><div class="ehb-yr">${r.label}</div>`+
+      `<div class="ehb-label">YoY %</div><div class="ehb-pct" style="color:${yoyColor}">${yoyStr}</div>`+
+      `<div class="ehb-label">Source</div><div style="font-size:11px;color:#cdd8e3">${r.src==='rep'?'Sourced':r.src==='none'?'No data':'Estimate'}</div>`+
+      (sev?`<div class="ehb-label">Severity</div><div class="ehb-sev ${sevCls}">${sev}</div>`:'');
+  }
+  if(charts.ev){charts.ev.destroy();charts.ev=null;}
+  charts.ev=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:vals,
+    backgroundColor:bg,borderColor,borderWidth,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      onHover:(_,active)=>{
+        if(!active.length){charts.ev._hx=null;return;}
+        charts.ev._hx=active[0].index; updateHoverBox(series[active[0].index]);
+      },
+      plugins:{legend:{display:false},
+        tooltip:{...tip,callbacks:{
+          label:x=>{const r=series[x.dataIndex];if(r.yoy==null)return'No data';return(r.yoy>0?'+':'')+r.yoy.toFixed(1)+'% YoY';},
+          afterLabel:x=>{const n=series[x.dataIndex].note;return n?n.substring(0,80)+(n.length>80?'…':''):'';} }}},
+      scales:{x:{...axis.x,ticks:{...axis.x.ticks,maxRotation:60,minRotation:45,font:{size:9}}},
+        y:{...axis.y,
+          title:{display:true,text:'YoY %',color:'#8b9bab',font:{size:10}},
+          ticks:{...axis.y.ticks,callback:v=>v==null?'':(v>0?'+':'')+v+'%'}}}},
+    plugins:[{id:'xhair',afterDraw(chart){
+      if(chart._hx==null)return;
+      const el=chart.getDatasetMeta(0).data[chart._hx]; if(!el)return;
+      const c2=chart.ctx,{top,bottom}=chart.chartArea;
+      c2.save();c2.beginPath();c2.moveTo(el.x,top);c2.lineTo(el.x,bottom);
+      c2.strokeStyle='rgba(255,255,255,0.25)';c2.lineWidth=1.5;c2.setLineDash([4,3]);c2.stroke();c2.restore();
+    }}]});
+}
+function chartTrend(c){
+  const ctx=document.getElementById('chTrend'); if(!ctx)return;
+  const isRainfall=!!c.trendIdx.isRainfall;
+  // Rainfall live feed: color by avg index (blue=wet, red=dry, green=near-normal)
+  // Estimates: always dashed sky-blue
+  let lineColor='#38bdf8', fillColor='rgba(56,189,248,.1)';
+  if(isRainfall){
+    const rv=c.trendIdx.vals.filter(v=>v!=null);
+    const avg=rv.length?rv.reduce((a,b)=>a+b,0)/rv.length:100;
+    if(avg>110){lineColor='#38bdf8';fillColor='rgba(56,189,248,.1)';}
+    else if(avg<90){lineColor='#f97316';fillColor='rgba(249,115,22,.08)';}
+    else{lineColor='#22c55e';fillColor='rgba(34,197,94,.08)';}
+  }
+  const scaleY={...axis.y,title:{display:true,text:isRainfall?'Rainfall vs normal (100=avg)':'Index',color:'#8b9bab',font:{size:9}}};
+  charts.tr=new Chart(ctx,{type:'line',data:{labels:c.trendIdx.labels,datasets:[{data:c.trendIdx.vals,
+    borderColor:lineColor,backgroundColor:fillColor,
+    borderWidth:2.5,borderDash:isRainfall?[]:[6,4],pointRadius:3,
+    pointBackgroundColor:lineColor,tension:0.3,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{...tip,callbacks:{label:x=>{
+        const v=x.parsed.y; if(v==null) return 'No data yet';
+        if(isRainfall){const d=Math.abs(v-100);return `Rainfall: ${v} (${d}% ${v>100?'above':'below'} normal)`;}
+        return `Index: ${v} (illustrative)`;
+      }}}},scales:{...axis,y:scaleY}}});
+  const cap=document.getElementById('trendCap');
+  const badge=document.getElementById('trendSrcBadge');
+  if(cap) cap.textContent=isRainfall
+    ? `Actual 2026 rainfall vs 30-yr climate normal at key growing region (100 = normal, >100 wetter, <100 drier). Source: Open-Meteo daily archive.`
+    : `2026 monthly production outlook (index, avg month = 100). CLAUDE EST. — seasonal pattern + El Niño risk window. Dashed = projection, not reported data.`;
+  if(badge) badge.innerHTML=isRainfall
+    ? `<span class="src-badge live" style="margin-left:8px">LIVE · Open-Meteo 2026</span>`
+    : `<span class="src-badge est" style="margin-left:8px">illustrative</span>`;
+}
+
+// ════════════ LIVE WEATHER (Open-Meteo) ════════════
+
+// ════════════ INIT ════════════
+(function init(){
+  // restore AI config
+  const p=sessionStorage.getItem('en_prov')||'claude';
+  document.getElementById('claudeKey').value=sessionStorage.getItem('en_claudeKey')||'';
+  document.getElementById('geminiKey').value=sessionStorage.getItem('en_geminiKey')||'';
+  setProvider(p);
+  renderSidebar(); render();
+  // kick off live data (non-blocking — dashboard is usable immediately with static data)
+  fetchAllLiveData(false);
+})();
+</script>
+</body>
+</html>

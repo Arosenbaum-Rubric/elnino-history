@@ -1,0 +1,133 @@
+year,country,yield_mt_per_ha,source_owid,source_usda,divergence_flag,provenance
+2005,Indonesia,18.9702,18.9702,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2005,Malaysia,18.4629,18.4629,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2005,Thailand,15.4311,15.4311,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2005,Colombia,19.2995,19.2995,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2005,Nigeria,2.5373,2.5373,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2005,Papua New Guinea,14.7727,14.7727,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2006,Indonesia,19.5255,19.5255,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2006,Malaysia,19.0626,19.0626,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2006,Thailand,17.6771,17.6771,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2006,Colombia,19.3939,19.3939,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2006,Nigeria,2.6992,2.6992,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2006,Papua New Guinea,14.6739,14.6739,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2007,Indonesia,17.1053,17.1053,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2007,Malaysia,18.3544,18.3544,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2007,Thailand,14.9957,14.9957,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2007,Colombia,19.3939,19.3939,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2007,Nigeria,2.6984,2.6984,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2007,Papua New Guinea,14.5833,14.5833,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2008,Indonesia,17.0683,17.0683,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2008,Malaysia,19.5523,19.5523,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2008,Thailand,20.0854,20.0854,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2008,Colombia,19.3939,19.3939,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2008,Nigeria,2.6563,2.6563,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2008,Papua New Guinea,14.5299,14.5299,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2009,Indonesia,18.0,18.0,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2009,Malaysia,18.2696,18.2696,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2009,Thailand,16.0052,16.0052,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2009,Colombia,19.3939,19.3939,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2009,Nigeria,2.6563,2.6563,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2009,Papua New Guinea,14.5378,14.5378,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2010,Indonesia,19.2042,19.2042,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2010,Malaysia,17.1189,17.1189,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2010,Thailand,15.1915,15.1915,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2010,Colombia,19.6373,19.6373,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2010,Nigeria,2.5,2.5,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2010,Papua New Guinea,13.7037,13.7037,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2011,Indonesia,18.9627,18.9627,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2011,Malaysia,18.5831,18.5831,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2011,Thailand,18.8615,18.8615,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2011,Colombia,19.9583,19.9583,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2011,Nigeria,2.5,2.5,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2011,Papua New Guinea,13.986,13.986,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2012,Indonesia,19.8496,19.8496,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2012,Malaysia,18.6959,18.6959,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2012,Thailand,19.106,19.106,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2012,Colombia,19.8748,19.8748,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2012,Nigeria,2.4923,2.4923,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2012,Papua New Guinea,14.0411,14.0411,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2013,Indonesia,18.2642,18.2642,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2013,Malaysia,18.1496,18.1496,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2013,Thailand,20.5972,20.5972,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2013,Colombia,19.9934,19.9934,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2013,Nigeria,2.6667,2.6667,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2013,Papua New Guinea,14.0,14.0,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2014,Indonesia,18.1595,18.1595,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2014,Malaysia,20.3399,20.3399,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2014,Thailand,19.3729,19.3729,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2014,Colombia,19.4854,19.4854,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2014,Nigeria,2.633,2.633,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2014,Papua New Guinea,13.7711,13.7711,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2015,Indonesia,18.2659,18.2659,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2015,Malaysia,20.2379,20.2379,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2015,Thailand,17.0607,17.0607,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2015,Colombia,18.7588,18.7588,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2015,Nigeria,2.5698,2.5698,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2015,Papua New Guinea,13.6947,13.6947,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2016,Indonesia,16.5638,16.5638,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2016,Malaysia,17.2601,17.2601,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2016,Thailand,18.0679,18.0679,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2016,Colombia,18.0664,18.0664,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2016,Nigeria,2.5662,2.5662,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2016,Papua New Guinea,13.4379,13.4379,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2017,Indonesia,17.5455,17.5455,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2017,Malaysia,19.9074,19.9074,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2017,Thailand,18.1304,18.1304,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2017,Colombia,17.3887,17.3887,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2017,Nigeria,2.5668,2.5668,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2017,Papua New Guinea,13.2374,13.2374,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2018,Indonesia,16.8852,16.8852,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2018,Malaysia,18.9657,18.9657,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2018,Thailand,18.1394,18.1394,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2018,Colombia,16.969,16.969,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2018,Nigeria,2.5701,2.5701,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2018,Papua New Guinea,13.0733,13.0733,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2019,Indonesia,16.8478,16.8478,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2019,Malaysia,18.9896,18.9896,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2019,Thailand,18.1093,18.1093,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2019,Colombia,16.6436,16.6436,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2019,Nigeria,2.5698,2.5698,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2019,Papua New Guinea,12.9209,12.9209,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2020,Indonesia,17.1321,17.1321,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2020,Malaysia,18.5348,18.5348,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2020,Thailand,17.2698,17.2698,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2020,Colombia,15.0048,15.0048,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2020,Nigeria,2.5675,2.5675,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2020,Papua New Guinea,12.7754,12.7754,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2021,Indonesia,18.4345,18.4345,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2021,Malaysia,17.7664,17.7664,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2021,Thailand,17.5097,17.5097,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2021,Colombia,16.3396,16.3396,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2021,Nigeria,2.5683,2.5683,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2021,Papua New Guinea,12.7512,12.7512,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2022,Indonesia,17.0732,17.0732,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2022,Malaysia,18.4921,18.4921,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2022,Thailand,18.9373,18.9373,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2022,Colombia,16.4715,16.4715,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2022,Nigeria,2.5689,2.5689,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2022,Papua New Guinea,12.6715,12.6715,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2023,Indonesia,16.9372,16.9372,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2023,Malaysia,18.5086,18.5086,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2023,Thailand,18.3899,18.3899,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2023,Colombia,16.5468,16.5468,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2023,Nigeria,2.5673,2.5673,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2023,Papua New Guinea,12.566,12.566,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2024,Indonesia,16.9693,16.9693,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2024,Malaysia,19.7697,19.7697,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2024,Thailand,18.3329,18.3329,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2024,Colombia,15.2952,15.2952,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2024,Nigeria,2.5657,2.5657,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2024,Papua New Guinea,12.4605,12.4605,,,SOURCE: Our World In Data / FAO — https://ourworldindata.org/grapher/palm-oil-yields.csv?v=1&csvType=full&useColumnShortNames=false
+2025,Indonesia,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2025,Malaysia,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2025,Thailand,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2025,Colombia,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2025,Nigeria,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2025,Papua New Guinea,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2026,Indonesia,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2026,Malaysia,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2026,Thailand,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2026,Colombia,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2026,Nigeria,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
+2026,Papua New Guinea,,,,,ESTIMATED BY CLAUDE — Claude not available (no ANTHROPIC_API_KEY)
